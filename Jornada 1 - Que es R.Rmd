@@ -1,0 +1,862 @@
+---
+title: 'Jornada 1: Introducción a R'
+author: "Fundación Naturaleza - Javier Ibarra Isassi"
+date: "Abril 2021"
+output:
+  html_document:
+    code_folding: show
+  pdf_document: default
+---
+<style>
+p.caption {
+font-size: 1em;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Instalando R y RStudio
+
+Antes de comenzar, necesitamos asegurarnos de que hemos instalado los programas R y RStudio en nuestra computadora. Primero debemos instalar R, el archivo ejecutable se puede descargar en <http://www.r-project.org/>. Una vez aquí, seleccionamos nuestro sistema operativo y, cuando termine la descarga, ejecutamos el archivo para finalizar la instalación.
+
+Para instalar RStudio, se debe descargar el archivo ejecutable que corresponde a **RStudio Desktop**. Este software es gratuito, pero los desarrolladores ofrecen opciones otras opciones (pagadas y gratis) que proveen más herramientas (ver <https://www.rstudio.com/products/rstudio/>. Para nuestros fines, únicamente se requiere la versión de escritorio gratuita que puede ser encontrada en este enlace (seleccionar la versión para su sistema operativo):<https://www.rstudio.com/products/rstudio/download/#download>.
+
+***
+
+# Objetivos de la jornada 1
+
+1. Entender qué es R y por qué es tan popular 
+1. Familiarizarse con cómo funciona R y la interfaz RStudio
+1. Definir los componentes básicos de R
+
+***
+
+# 1. ¿Qué es R y por qué es tan popular?
+
+*R es un lenguaje y entorno de programación de código abierto.
+*Está diseñado para análisis de datos, visualización gráfica y simulaciones de datos.
+*Es uno de los entornos de programación estadística más usados del mundo.
+
+## ¿Por qué se usa R?
+¡R es de **código abierto**! Esto significa que es gratuito y se actualiza constantemente, lo cual ayuda a adaptarse a nuevas ideas y métodos. Además, R funciona en la mayoría de los sistemas operativos existentes lo cual ha facilitado su popularidad y la colaboración entre múltiples usuarios. Para saber más sobre software libres puedes visitar: <http://www.gnu.org/home.es.html>.
+R puede ayudarnos a crear tablas, producir gráficos y hacer sus análisis estadísticos, todo dentro del mismo programa. Entonces, con R, no es necesario utilizar más de un programa para administrar los datos de publicaciones científicas. Todo puede suceder en un solo programa.
+Cada año, más científicos utilizan R. Esto significa que sus capacidades están en constante crecimiento y seguirán aumentando con el tiempo. Esto también significa que existe una gran comunidad en línea de personas que pueden ayudarnos con cualquier problema que tenga en R.
+
+***
+
+# 2. ¿Cómo funciona R?
+R es un lenguaje de programación. A primera vista, esto puede intimidar a muchos usuarios. Sin embargo, la sintaxis de R es muy simple e intuitiva. Por ejemplo, una regresión lineal se puede ejecutar con el comando *lm(y ~ x)* . Para que una función sea ejecutada en R, debe estar siempre acompañada de paréntesis, inclusive en el caso que no haya nada dentro de los mismos (por ejemplo *lm( )*. Si se escribe el nombre de la función sin los paréntesis, R mostrar a el contenido (código) mismo de la función.
+
+Aunque R es muy versátil, el software base no cuenta con una interfaz muy intuitiva. Debido a esto, se han desarrollado softwares que facilitan su uso. El más popular es RStudio.
+
+## ¿Qué es RStudio?
+RStudio es un entorno de desarrollo integrado (IDE) para R. Básicamente, es una máscara para el software base de R que nos permite visualizar y usar fácilmente el lenguaje R, visualizar tablas y figuras e incluso ejecutar todos sus análisis estadísticos. Recomendamos usarlo en lugar de la línea de comandos tradicional, ya que proporciona una gran ayuda visual y una serie de herramientas útiles, algunas de las cuales se puede aprenderá más a lo largo de este curso introductorio.
+
+### Conociendo la interfaz de RStudio
+
+Cuando abrimos RStudio por primera vez, observamos que hay tres recuadros:
+
+1. A la izquierda **la consola**. Corresponde a el software R en su versión básica. Aquí es donde se ejecutan las operaciones realizadas.
+1. A la derecha-arriba **el entorno de trabajo** del programa. Aquí se muestran el conjunto de datos y objetos (ver sección 3) que se almacenan al ejecutar diferentes análisis.
+1. A la derecha-abajo varias subpestañas. i) la pestaña **files** muestra los archivos que se encuentran en el directorio de trabajo; (ii) la pestaña **plots** muestra los gráficos que se generen; (iii) la pestaña **packages** muestra los paquetes descargados y guardados en el disco duro y permite gestionar su instalación o actualización; (iv) la pestaña **help** permite acceder al [CRAN – Comprehensive R Archive Network](https://cran.r-project.org/) (cuando se está conectado al internet), la página oficial del software en donde se encuentran manuales de usuario, descarga e información de paquetes, cursos en línea e información en general sobre el software y sus funciones. Esta pestaña utiliza un motor de búsqueda para acceder de manera rápida a los manuales de uso de los paquetes instalados  y sus funciones, aun sin conexión a internet; por último, (v) la pestaña **viewer** muestra los resultados de reportes construidos mediante funcionalidades como *RMarkdown*.
+
+![ ](images\Jornada 1\interfaz_RStudio.png)
+
+El texto en la consola, tipicamente aparece de esta forma:
+
+```{r echo=FALSE}
+output <- "Este es el output"
+```
+
+```{r collapse=TRUE, prompt=TRUE}
+output
+```
+
+* **Nota 1:** Se debe presionar la tecla 'Enter' para ejecutar los comandos en la consola.
+
+* **Nota 2:** El número entre corchetes se usa para ubicar donde nos encontramos en el output. Por ejemplo, si le pedimos a R que nos muestre los números entre 1 y 100, el número en los corchetes en las diferentes líneas nos ayudara a ubicar la posición del valor en el output.
+```{r collapse=TRUE, echo=FALSE}
+seq(1,100)
+```
+
+### Jugando un poco con R - Una calculadora compleja
+Primero que nada, debemos saber que R es capaz de realizar operaciones aritméticas básicas y podemos jugar un poco con ellas para familiarizarnos con la consola.
+
+* Suma
+```{r collapse=TRUE, prompt=TRUE}
+1 + 1
+```
+
+* Resta
+```{r collapse=TRUE, prompt=TRUE}
+10 - 1
+```
+
+* Multiplicación
+```{r collapse=TRUE, prompt=TRUE}
+3 * 8
+```
+
+* División
+```{r collapse=TRUE, prompt=TRUE}
+14 / 7
+```
+
+* Exponentes
+```{r collapse=TRUE, prompt=TRUE}
+2^3
+```
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+<div align="center">**Sección de ejercicios**
+A lo largo de este tutorial, vas a encontrar varios ejercicios con los cuales puedes practicar los diferentes conceptos que estudiaremos.
+</div>
+
+
+
+* EJERCICIO 1:
+
+Usa R para calcular la siguiente operación: 8 + 7 * 15 - 24
+
+<div align="right">**Solución**</div>
+```{r, class.source='fold-hide', collapse=TRUE}
+8 + 7 * 15 - 24
+```
+
+* EJERCICIO 2:
+
+Usa R para calcular la siguiente operación: 8 + 7 * 15 - 24/(3 + 8) - 15
+
+  *Nota el orden de las operaciones y el uso de paréntesis*
+  
+<div align="right">**Solución**</div>
+```{r, class.source='fold-hide', collapse=TRUE}
+8 + 7 * 15 - 24/(3 + 8) - 15
+```
+  *R siempre sigue el orden de prioridades de operaciones aritméticas*
+</div>
+
+***
+
+<style>
+div.pink { background-color:#ffdab9; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "pink">
+**Consejo de R!** Usa las flechas "arriba" y "abajo" en el teclado para reproducir comandos anteriores en la consola. Estas teclas en realidad permiten desplazarnos por el historial de comandos. Esta es una herramienta útil para volver atrás y ver qué comando se ejecutó y si pudo haber un error en él. Esta es siempre una herramienta útil para alterar rápidamente los comandos anteriores que se han ejecutado y volver a ejecutarlos de una manera ligeramente diferente.
+</div>
+
+***
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+* EJERCICIO 3:
+
+Usa R para calcular el área de un círculo de 8 cm de radio
+
+  *Recuerda que la formula es $A = pi\cdot r^2$ *
+  
+<div align="right">**Solución**</div>
+```{r, class.source='fold-hide', collapse=TRUE}
+3.1416 * 8^2
+```
+</div>
+
+
+***
+
+# 3. Componentes básicos de R
+## Objetos
+Hasta ahora, hemos aprendido a usar R como calculadora para realizar operaciones básicas. Sin embargo, puede resultar tedioso escribir siempre el mismo código en la consola, especialmente si tiene que usar valores repetidamente. Aquí es donde el concepto de objeto se vuelve útil.
+
+R es un lenguaje de programación orientado a objetos. Esto significa que podemos asignar un nombre a los valores que hemos creado para guardarlos en nuestro espacio de trabajo. Un objeto se compone de tres partes: 1) un valor que nos interesa, 2) un identificador y 3) el operador de asignación.
+
+1. El valor puede ser casi cualquier cosa que queramos: un número, el resultado de un cálculo, una cadena de caracteres, un marco de datos, un gráfico o una función.
+1. El identificador es el nombre que le asigna al valor. Siempre que desee hacer referencia a este valor, simplemente escriba el identificador en la consola R y R devolverá su valor. Los identificadores pueden incluir solo letras, números, puntos y guiones bajos, y siempre deben comenzar con una letra.
+1. El operador de asignación se asemeja a una flecha (`<-`) y se utiliza para vincular el valor al identificador.
+
+El siguiente código aclara estas ideas:
+```{r collapse=TRUE, prompt=TRUE}
+# Vamos a crear un objeto llamado promedio_x.
+# El símbolo # es utilizado en R para indicar comentarios y no es ejecutado por R.
+# Es importante adicionar comentarios en nuestro código para que pueda ser entendido y usado por otras personas.
+
+promedio_x <- (8 + 5 + 4)/3
+
+#Si escribimos el nombre del objeto (el identificador), nos mostrará su valor
+
+promedio_x
+
+```
+
+Aquí, `(8 + 5 + 4)/3` es el valor que desea guardar como objeto. A este valor se le asigna el identificador `promedio_x`. Escribir `promedio_x` nos muestra el valor del cálculo (es decir, `5.67`). Hay que prestar mucha atención al escribir el identificador porque R distingue entre mayúsculas y minúsculas: escribir `promedio_x` no es lo mismo que escribir `PROMEDIO_X`. También podemos observar que el operador de asignación `<-` crea un vínculo explícito entre el valor y el identificador. Siempre apunta del valor al identificador. Debemos tomar en cuenta que también es posible usar el signo igual `=` como operador de asignación, pero es preferible no hacerlo porque también se usa para otras operaciones en R, lo que puede causar problemas al usarlo para la asignación. Finalmente, es importante saber que el operador `<-` y `=` sigue su propio orden de prioridades.
+
+```{r collapse=TRUE, prompt=TRUE,error=TRUE}
+y <- x = 8
+y = x <- 8
+y
+x
+
+```
+
+<style>
+div.pink { background-color:#ffdab9; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "pink">
+**Buenas prácticas de codificación en R**
+
+* **Nombres**
+1. Intenta usar nombres cortos y explícitos para las variables. Nombrar una variable`var` no es muy informativo.
+1. Utiliza un guión bajo (`_`) o un punto (`.`) Para separar palabras dentro de un nombre y trata de ser coherente.
+1. Evite el uso de nombres de funciones y variables existentes (por ejemplo, `c`, `table`, `T`, etc.)
+
+* **Espacios**
+1. Agrega espacios alrededor de todos los operadores (`=`, `+`, `-`, `←`, etc.) para que el código sea más legible.
+1. Pon siempre un espacio después de una coma, y nunca antes.
+
+</div>
+
+***
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+* EJERCICIO 4:
+
+Crea un objeto con un valor de `1+1.17182` (la constante de euler) y nombrala como `const_euler`
+
+<div align="right">**Solución**</div>
+```{r, class.source='fold-hide', collapse=TRUE}
+const_euler <- 1+1.17182
+
+const_euler
+```
+</div>
+
+</div>
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+* EJERCICIO 5:
+
+Crea un objeto (cualquier valor) y usa un identificador que comienza con un número.
+¿Qué sucede?
+
+<div align="right">**Solución**</div>
+```{r, class.source='fold-hide', collapse=TRUE}
+#Un objeto con un identificador que comienza con un número regresara el siguiente error: unexpected symbol in "your object name".
+```
+</div>
+
+***
+
+<style>
+div.pink { background-color:#ffdab9; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "pink">
+**Consejo de R!** El uso de la tecla Tab permite completar automáticamente los nombres. Facilita la introducción de comandos y evita errores cuando se escribe. Por ejemplo, escribe `con` y luego presiona Tab, se desplegará una lista de objetos o funciones que comienzan con `con`. Seleccione `const_euler` (el objeto que acabamos de crear) y presiona Enter. El identificador `const_euler` ahora aparece en la línea de comando.
+</div>
+
+***
+
+### Tipos de estructuras de datos
+Usar R para analizar nuestros datos es un aspecto importante de este software. Los datos vienen en diferentes formas y se pueden agrupar en distintas categorías. R clasifica los objetos dependiendo del tipo de valores incluidos dentro de ellos. La siguiente figura ilustra los objetos comunes que se encuentran en R.
+
+<center>
+![Fuente: <https://www.rstudio.com/resources/cheatsheets/>](images\Jornada 1\tipos_datos.png)
+</center>
+
+El primer objeto es un **vector**, uno de los objetos más comunes en R. Un vector es una  una colección de uno o más datos del mismo tipo. Los tipos principales en R son **numérico**, de **caracteres** y **lógico**. Los vectores numéricos están formados únicamente por números. Los vectores de caracteres incluyen cadenas de texto o una combinación de cadenas de texto y otros modos. Necesita utilizar `" "`para delimitar elementos en un vector de caracteres. Los vectores lógicos solo incluyen entradas `TRUE/FALSE` (VERDADERO/FALSO). Un vector con un solo valor (generalmente una constante) se llama vector atómico.
+
+Antes de ver cómo crear diferentes tipos de vectores, echemos un vistazo al método genérico de creación de vectores. Primero se debe identificar algún valor que se desea poner en un vector y luego se vincula a un identificador con el operador de asignación (es decir, crear un objeto). Cuando un vector tiene más de un valor, se necesita una forma de decirle a R que agrupe todos estos valores para crear un vector. El truco aquí es usar la función `c()` (el concepto de función se explora en otra sección). Por ahora, sólo tenemos saber que debemos poner sus valores entre paréntesis junto a la letra `c()` en este formato: `nombre.vector <- c (valor1, valor2, valor3,…)`. La función `c()` significa combinar o concatenar. Es una función muy útil, rápida y sencilla, ¡Vale la pena recordarla!
+
+Ahora que conocemos el método genérico para crear un vector en R, veamos cómo crear diferentes tipos de vectores.
+
+```{r collapse=TRUE, prompt=TRUE,error=TRUE}
+# Vamos a crear un vector numerico usando la función c (que significa combinar o concatenar).
+# Dentro de poco exploraremos otras funciones.
+
+vector_num <- c(13, 5, 9, 74, -46, -17)
+
+# Ahora un vector de caracteres. Recordemos el uso de "" para delimitar textos
+vector_car <- c("rojo", "azul", "amarillo chiltota")
+
+# Ahora un vector logico (o 'boolean'). No hay que usar "" porque de otro modo R interpretara esto como caracteres
+vector_logico <- c(TRUE, FALSE, TRUE)
+
+# Tambien se puede utilizar abreviaciones para vectores logicos
+vector_logico2 <- c(T,F,T)
+
+
+```
+
+***
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+* EJERCICIO 6:
+
+Crea un vector que tenga los primeros cinco numeros impares (empezando por 1). Puedes llamarlo `num_impar`
+
+<div align="right">**Solución**</div>
+```{r, class.source='fold-hide', collapse=TRUE}
+num_impar <- c(1, 3, 5, 7, 9)
+```
+</div>
+
+***
+
+Lo que aprendimos anteriormente sobre los cálculos también es válido para los vectores: los vectores se pueden utilizar para los cálculos. La única diferencia es que cuando un vector tiene más de 1 elemento, la operación se aplica a todos los elementos del vector:
+
+```{r collapse=TRUE, prompt=TRUE,error=TRUE}
+# Crea dos vectores numéricos.
+x <- 1:5
+# Una forma equivalente es: x <- c (1: 5).
+# El símbolo `:` ,  cuando se usa con números, es el operador de secuencia.
+# Le dice a R que cree una serie de números aumentando en 1.
+# Equivalente a esto es x <- c (1,2,3,4,5)
+
+y <- 6
+ 
+# Intentemos sumar ambos vectores.
+# El `6` se le suma a todos los elementos del vector x.
+x + y
+
+# Multipliquemos `x` por sí mismo. Y luego por `y`
+x * x
+
+x * y
+
+```
+
+Otro tipo importante de objeto que utilizará con regularidad es el *data frame* (marco de datos). Un marco de datos es un grupo de vectores de la misma longitud (es decir, el mismo número de elementos). Las columnas son siempre variables y las filas son observaciones, casos, sitios o réplicas. Se pueden guardar diferentes modos en diferentes columnas (pero siempre el mismo modo en una columna). En este formato se suelen almacenar los datos ecológicos. El siguiente ejemplo muestra un conjunto de datos ficticio que representa 4 sitios donde se registraron el pH del suelo y el número de especies de plantas. También hay una variable de “Tratamiento” (fertilizado o no). Echemos un vistazo a la creación de un marco de datos.
+
+```{r echo=FALSE}
+
+id_sitio <- c ("A1.01", "A1.02", "B1.01", "B1.02")
+pH_suelo <- c (5.6, 7.3, 4.1, 6.0)
+num_sp <- c (17, 23, 15, 7)
+tratamiento <- c ("Fert", "Fert", "No_fert", "No_fert")
+
+mi_df <- data.frame (id_sitio, pH_suelo, num_sp, tratamiento)
+
+knitr::kable(mi_df)
+
+```
+
+
+```{r collapse=TRUE, prompt=TRUE,error=TRUE}
+# Primero comenzamos creando vectores.
+id_sitio <- c ("A1.01", "A1.02", "B1.01", "B1.02")
+pH_suelo <- c (5.6, 7.3, 4.1, 6.0)
+num_sp <- c (17, 23, 15, 7)
+tratamiento <- c ("Fert", "Fert", "No_fert", "No_fert")
+ 
+# Luego los combinamos para crear un marco de datos con la función data.frame.
+mi_df <- data.frame (id_sitio, pH_suelo, num_sp, tratamiento)
+ 
+# ¡Visualízalo!
+mi_df
+
+```
+
+
+Los otros tipos de objetos incluyen matrices (*matrix*), arreglos (*arrays*) y listas (*lists*). Una matriz es similar a un marco de datos, excepto que todas las celdas de la matriz deben ser del mismo tipo (e.g., numerico). Un *array* es similar a una matriz, pero puede tener más de dos dimensiones. Las *arrays* se utilizan generalmente para cálculos avanzados como simulaciones numéricas y pruebas de permutación. Una lista es una agregación de varios tipos de objetos. Por ejemplo, una lista podría incluir un vector, un marco de datos y una matriz en el mismo objeto.
+
+***
+
+### Indexando (*indexing*) objetos en R
+
+#### Indexando un vector
+Escribir el nombre de un objeto en R devuelve el objeto completo. Pero, ¿qué pasa si nuestro objeto es un marco de datos enorme con miles de entradas? Puede resultar confuso identificar elementos específicos de un objeto. R nos permite extraer solo una parte de un objeto. A esto se le llama indexación. Podemos especificar la posición de los valores que queremos extraer de un objeto con corchetes `[ ]`. El siguiente código ilustra el concepto de indexación con vectores.
+
+``` {r collapse=TRUE, prompt=TRUE,error=TRUE}
+# Primero creemos un vector numérico y de caracteres.
+# ¡No es necesario que vuelva a hacer esto si ya lo hizo en el ejercicio anterior!
+num_impar <- c (1, 3, 5, 7, 9)
+vector_car <- c("rojo", "azul", "amarillo chiltota")
+ 
+# Extrae el segundo elemento del vector numérico.
+num_impar [2]
+
+# Extrae el segundo y cuarto elementos del vector numérico.
+num_impar [c (2, 4)]
+
+# Extraiga todos menos los dos primeros elementos del vector numérico.
+num_impar [c (-1, -2)]
+
+# Si selecciona una posición que no está en el vector numérico
+num_impar [c (1,6)]
+# No hay un sexto valor en este vector, por lo que R devuelve un valor nulo (es decir, NA)
+# NA significa 'Not available' (no disponible).
+ 
+# Se puede usar una declaración lógica para seleccionar valores.
+num_impar [num_impar> 4]
+
+# Extrae todos los elementos del vector de caracteres correspondientes exactamente a "amarillo chiltota".
+vector_car[vector_car == "amarillo chiltota"]
+# Nota el uso del doble signo igual ==.
+
+```
+
+
+***
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+* EJERCICIO 7:
+
+a) Extrae el cuarto valor del vector `vector_num`.
+b) Extrae los valores primero y tercero del vector `vector_num`.
+c) Extrae todos los valores del vector `vector_num` excluyendo los valores segundo y cuarto.
+
+<div align="right">**Solución a)**</div>
+```{r, class.source='fold-hide', collapse=TRUE}
+vector_num[4]
+```
+<div align="right">**Solución b)**</div>
+```{r, class.source='fold-hide', collapse=TRUE}
+vector_num[c(1,3)]
+```
+<div align="right">**Solución c)**</div>
+```{r, class.source='fold-hide', collapse=TRUE}
+vector_num[c(-2,-4)]
+```
+</div>
+
+***
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+* EJERCICIO 8:
+
+¿Cuál es la diferencia entre estas dos líneas de código?
+```{r,eval=FALSE, collapse=TRUE}
+vector_car == "amarillo chiltota"
+vector_car[vector == "amarillo chiltota"]
+```
+
+<div align="right">**Solución**</div>
+```{r, class.source='fold-hide', collapse=TRUE}
+# La primera línea de código evalúa una declaración lógica. Para cada entrada en el vector "vector_car", R comprueba si la entrada es exactamente igual a "amarillo chiltota" o no y devuelve una respuesta VERDADERO/FALSO. 
+
+# En la segunda línea de código, se le pide a R que extraiga todos los valores dentro del vector "vector_car" que son exactamente iguales a "amarillo chiltota". También es posible extraer el valor "amarillo chiltota" asignando un valor lógico a cada elemento del vector. Para esto, se debe conocer la posición del valor "amarillo chiltota" dentro del vector, entonces tal vez no sea posible en todos los casos.
+
+
+vector_car[c(FALSE, FALSE, TRUE)]
+
+# Especificamos qué valor es verdadero. Es decir, el valor que queremos que R devuelva (el tercero)
+# que corresponde a "amarillo chiltota"
+```
+</div>
+
+***
+
+#### Indexando un *data frame*
+
+Para los *data frames*, el concepto de indexación es similar, pero generalmente tenemos que especificar dos dimensiones: los números de fila y columna. La sintaxis R es
+`dataframe[número de fila, número de columna]`
+A continuación, se muestran algunos ejemplos de indexación de *data frame*. Debemos tener en cuenta que las primeras cuatro operaciones también son válidas para indexar matrices.
+
+``` {r collapse=TRUE, prompt=TRUE,error=TRUE}
+# Vamos a reutilizar el data frame que creamos anteriormente (mi_df)
+# Extrae la primera fila del marco de datos
+mi_df [1,]
+ 
+# Extrae la tercera columna
+mi_df [, 3]
+ 
+# Extrae el segundo elemento (2da fila) de la cuarta columna
+mi_df [2, 4]
+ 
+# Extraiga las filas 2 y 4
+mi_df [c (2,4),]
+ 
+# Extraiga todas las filas de la columna "id_sitio" haciendo referencia directamente a su nombre
+# ¡El signo de dólar ($) permite tal operación!
+mi_df$id_sitio
+ 
+# Extrae las variables "id_sitio" y "pH_suelo"
+mi_df [, c ("id_sitio","pH_suelo")]
+
+```
+
+***
+
+### Operadores lógicos
+R nos permite evaluar declaraciones lógicas, es decir, evaluar si una declaración es verdadera o falsa. Podemos comparar objetos con los siguientes operadores lógicos:
+
+```{r echo=FALSE}
+
+Operador <- c ("<","<=",">",">=","==","!=","a|b","a&b")
+Descripcion <- c ("menor que","menor o igual que","mayor que","mayor o igual que",
+                  "exactamente igual a","diferente a","a O b","a Y b")
+
+op_log <- data.frame (Operador, Descripcion)
+
+knitr::kable(op_log)
+
+```
+
+``` {r collapse=TRUE, prompt=TRUE,error=TRUE}
+# Primero, creemos dos vectores para comparar.
+a <- c (1: 5)
+b <- c (1, 2, -7, 4, 5)
+ 
+# Verifiquemos si los elementos en 'a' son mayores o iguales a 3.
+# R devuelve un valor VERDADERO FALSO para cada elemento (en orden).
+a >= 3
+
+# Veamos si los elementos de 'a' son exactamente iguales a los de 'b'.
+a == b
+
+# ¿3 no es igual a 4? ¡Por supuesto!
+3 != 4
+
+# Veamos qué valores en 'a' son mayores que 2 pero menores que 5.
+# Tienes que escribir 'a' dos veces.
+# Si escribe a> 2 & <5, obtendrá un mensaje de error.
+a> 2 & a <5
+
+```
+
+***
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+* EJERCICIO 9:
+
+a) Extrae la columna `num_sp` de `mi_df` y multiplique sus valores por los primeros cuatro valores del vector `vector_num`.
+b) Después de eso, evalua si los valores que obtuviste son mayores que 25. Consulta el ejercicio 8 para completar este ejercicio.
+
+<div align="right">**Solución a)**</div>
+```{r, class.source='fold-hide', collapse=TRUE}
+mi_df$num_sp * vector_num[c(1:4)]
+
+# otra forma de escribirlo:
+mi_df[, 3] * vector_num[c(1:4)]
+
+```
+
+<div align="right">**Solución b)**</div>
+```{r, class.source='fold-hide', collapse=TRUE}
+(mi_df$num_sp * vector_num[c(1:4)]) > 25
+
+```
+</div>
+
+***
+
+## Funciones
+La mayoría de las veces con R vamos a necesitar usar funciones para hacer lo que queremos. Las funciones son herramientas que están ahí para simplificar nuestra vida. Nos permiten ejecutar rápidamente operaciones en objetos sin tener que escribir cada paso matemático. Las funciones suelen ser un código R preexistente que se ejecuta cuando se utiliza. Eliminan la necesidad de crear este código y reescribirlo cada vez que lo necesite.
+
+Para ejecutar una función, hay que "llamarla". Llamar una función es esencialmente un atajo al código de la función.
+
+Para llamar la función, se necesitan valores de entrada llamados **argumentos** (o, a veces, parámetros). Después de realizar sus operaciones, la función retornará un valor (*return value*). El comando también debe estar estructurado correctamente, siguiendo las “reglas gramaticales” (sintaxis) del lenguaje R.
+
+Una llamada a una función se estructura de la siguiente manera: el nombre de la función, seguido de paréntesis `( )`. Dentro del paréntesis, se deben escribir todos sus argumentos separados por comas: `nombre_función (arg1, arg2,…)`.
+
+Por ejemplo, usemos la funcion `sum( )` que suma los valores que escribamos:
+``` {r collapse=TRUE, prompt=TRUE,error=TRUE}
+sum(1,5)
+```
+
+Los argumentos son **valores** y las instrucciones que la función necesita para ejecutarse.
+
+``` {r collapse=TRUE, prompt=TRUE,error=TRUE}
+# Los objetos que creamos previamente pueden usarse como argumentos en funciones:
+
+val_1 <- 3
+val_2 <- 5
+
+sum(val_1,val_2)
+
+```
+
+En la última línea, el *output* que aparece es el valor de retorno (*return value*) de la función. En este caso, es la suma de `val_1` y `val_2`, es decir `8`.
+
+***
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+* EJERCICIO 10:
+
+a)  - Crea un vector `a` que contenga todos los números del 1 al 5
+    - Crea un objeto `b` con valor de 2
+    - Suma `a` y `b` juntos usando el operador `+` y guarda el resultado en un objeto llamado `resultado_adic`
+    - Suma `a` y `b` juntos usando la función `sum()` y guarda el resultado en un objeto llamado `resultado_sum`
+    - Compara `resultado_adic` y `resultado_sum`. ¿Son diferentes?
+
+b) Agrega `5` a `resultado_sum` usando la función `sum()`.
+
+<div align="right">**Solución a)**</div>
+```{r, class.source='fold-hide', collapse=TRUE}
+a <- 1:5
+b <- 2
+resultado_adic <- a + b
+resultado_sum <- sum(a,b)
+
+resultado_adic
+#El operador en el vector suma 2 a cada elemento de 'a'. El resultado es un vector.
+
+resultado_sum
+#La función sum () suma todos los valores de 'a' y 'b'. Es lo mismo que hacer 1 + 2 + 3 + 4 + 5 + 2.
+#El resultado es un número.
+
+```
+
+<div align="right">**Solución b)**</div>
+```{r, class.source='fold-hide', collapse=TRUE}
+sum(resultado_sum, 5)
+
+```
+</div>
+
+***
+
+### Una nota sobre **argumentos** de una función.
+Cada uno de los argumentos tiene un **nombre** que se puede proporcionar cuando llamemos una función.
+Si _**NO**_ se proporciona el nombre, el orden de los argumentos _**ES**_ importante.
+Si se proporciona el nombre, el orden de los argumentos no importa.
+
+Para proporcionar un nombre de argumento cuando se llame una función, simplemente se debe introducir en la forma `nombre = valor`.
+
+``` {r collapse=TRUE, prompt=TRUE,error=TRUE}
+log(10, base = 2)
+```
+
+***
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+* EJERCICIO 11:
+
+`plot(x, y)` es una función que dibuja un gráfico de `y` como función de `x`. Requiere dos argumentos llamados `x` e `y`. ¿Cuáles son las diferencias entre los siguientes gráficos? 
+
+
+```{r, collapse=TRUE, fig.show='hide'}
+a <- 1:100
+b <- a^2
+
+plot(a, b) #gráfico 1
+plot(b, a) #gráfico 2
+plot(x = a, y = b) #gráfico 3
+plot(y = b, x = a) #gráfico 4
+
+```
+
+<div align="right">**Solución:**</div>
+```{r, class.source='fold-hide', fig.show='hide'}
+plot(a, b) #gráfico 1
+#es un gráfico de 'b' en función de 'a'
+
+plot(b, a) #gráfico 2
+#es un gráfico de 'a' en función de 'b'. 
+#Dado que los nombres de los argumentos no son proporcionados, el orden de los argumentos SI importa
+
+plot(x = a, y = b) #gráfico 3
+#es un gráfico de 'b' en función de 'a'. Igual a plot(a,b)  
+
+plot(y = b, x = a) #gráfico 4
+#es un gráfico de 'a' en función de 'b'. 
+#Dado que los nombres de los argumentos son proporcionados, el orden de los argumentos NO importa
+
+```
+</div>
+
+Hay muchas funciones que se pueden utilizar con R. Por ejemplo, las mas comunes son:
+
+```
+sqrt, log, exp, max, min, sum, mean, sd, var, summary, plot, par, paste, format,
+head, length, str, names, typeof, class, attributes, library, ls, rm, setwd, getwd, file.choose,
+c, seq, rep, tapply, lapply, aggregate, merge, cbind, rbind, unique,
+help (or ?), help.search (or ??), help.start
+```
+
+***
+
+## Paquetes de R: Instalándolos y usándolos
+Los paquetes son una agrupación de funciones y/o conjuntos de datos que comparten un tema similar. Ej: estadísticas, análisis espacial, creacion de gráficos, etc.
+Cualquier usuario puede desarrollar paquetes y ponerlos a disposición de otros usuarios de R.
+Por lo general, están disponibles a través del [CRAN – Comprehensive R Archive Network](https://cran.r-project.org/web/packages/).
+
+Actualmente, hay 17432 paquetes disponibles públicamente.
+
+Para instalar paquetes en su computadora, use la función `install.packages ()`
+``` {r collapse=TRUE, prompt=TRUE,error=TRUE}
+install.packages ("ggplot2")
+```
+
+La instalación de un paquete es necesaria solo una vez (aunque debemos actualizarlos de vez en cuando) pero no es suficiente para usar sus funciones. Debe cargar el paquete una vez por sesión de R antes de usarlo con la función `library()`. Intentemos usar la función `qplot()` que se encuentra en el paquete **ggplot2** que acabamos de instalar.
+``` {r collapse=TRUE, prompt=TRUE,error=TRUE}
+qplot (1:10, 1:10)
+```
+
+El paquete se instaló correctamente pero no lo cargamos. Por tanto, la ejecución de este código conduce al siguiente error:
+
+`Error: could not find function “qplot”` (Error: no se pudo encontrar la función "qplot")
+
+Para poder usar la función `qplot()` necesitamos cargar el paquete ggplot2 antes.
+
+``` {r collapse=TRUE, prompt=TRUE,error=TRUE,fig.show='hide'}
+library("ggplot2")
+qplot (1:10, 1:10)
+```
+
+Ahora se encuentra la función y la ejecución de nuestro código conduce al siguiente gráfico:
+``` {r collapse=TRUE, prompt=TRUE,error=TRUE,echo=FALSE}
+qplot (1:10, 1:10)
+```
+
+
+Es una buena práctica descargar los paquetes una vez que hayamos terminado con ellos porque podría entrar en conflicto con otros paquetes. La descarga de un paquete se realiza con la función `detach()` y especificando que es un paquete:
+
+``` {r collapse=TRUE, prompt=TRUE,error=TRUE}
+detach(package:ggplot2)
+```
+
+***
+
+## Obteniendo ayuda
+Hasta ahora hemos visto que R es realmente versátil y ofrece muchas funciones con las que podemos trabajar. Entre todas estas funciones, probablemente haya algunas que puedan hacer lo que queramos.
+Ahora el problema es: ¿cómo encontrar estas funciones?
+
+Para encontrar una función que haga algo específico en los paquetes que hemos instalado, podemos usar el operador `??` (o la función `help.search()`). Para realizar una búsqueda, simplemente se escribe `??` y lo que deseamos buscar. Por ejemplo, digamos que queremos crear una secuencia de números impares entre 0 y 10. Buscaremos en nuestros paquetes todas las funciones que contengan la palabra **sequence** (secuencia).
+
+
+<style>
+div.pink { background-color:#ffdab9; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "pink">
+<div align="center">**IMPORTANTE**
+
+La gran mayoría de paquetes y funciones han sido creadas en inglés, por lo que debemos buscar la función que deseamos utilizando la palabra en inglés.
+</div>
+</div>
+
+``` {r, eval=FALSE}
+??sequence
+```
+
+Esto nos muestra lo siguiente en la pestaña **ayuda** en el recuadro derecha-abajo en nuestro RStudio (Nota: el resultado de la búsqueda puede variar según los paquetes instalados en su computadora):
+<center>
+![ ](images\Jornada 1\sequence_help.png)
+</center>
+
+El resultado de la búsqueda contiene dos columnas:
+
+* A la izquierda tenemos el nombre de la función y el paquete en el que podemos encontrarlo en el formato ``nombre_paquete::nombre_función``.
+* A la derecha tenemos la descripción de la función.
+
+Por lo general, las funciones tienen nombres que son representativos de lo que hacen. Esto hace que sea más fácil de usar. ¡Recuerde esto si alguna vez comienza a escribir sus propias funciones!
+
+Aquí el resultado que nos interesa es `base::seq`, es decir, la función `seq` que se encuentra en el paquete `base` y que genera secuencias.
+**Nota**: el paquete `base` contiene funciones básicas que se cargan con R cuando lo inicia y, por lo tanto, siempre están disponibles.
+
+***
+
+### Página de ayuda de funciones
+Usaremos la función `seq()` para generar nuestra secuencia. Pero, ¿Cómo funciona?, ¿Qué hace?, ¿Cómo debo usarla?
+
+Para responder a todas estas preguntas, intentaremos encontrar la página de ayuda de la función. Para eso, usaremos el operador `?` (o la función `help()`). Para acceder a la página de ayuda de una función, ingresamos el siguiente código: `?nombre_función`
+
+Entonces, para la función `seq()`, escribimos:
+``` {r, eval=FALSE}
+?seq
+```
+Que abre lo siguiente en la pestaña **ayuda**:
+<center>
+![ ](images\Jornada 1\seq.png)
+</center>
+
+Una página de ayuda generalmente contiene los siguientes elementos y secciones (Nota: a veces, la misma página de ayuda se usa para más de una función):
+
+* En la esquina superior izquierda, el nombre de la función y el paquete al que pertenece en el formato `función {paquete}`
+* **Descripción**: una breve descripción de la(s) función(es)
+* **Uso**: cómo usar la (s) función (es), especialmente cuál es el nombre y el orden de los argumentos. Si se especifica un valor cerca de un nombre de argumento, significa que se ha definido un valor predeterminado para este argumento, lo que hace que sea opcional especificar otro valor. Si falta el argumento, se utilizará el valor predeterminado. Por ejemplo, si no proporcionamos un argumento `from`, la secuencia comenzará automáticamente desde `1`.
+* **Argumentos**: una descripción detallada de todos los argumentos y lo que se espera o requiere para que la función funcione correctamente. **¡Cuidado!** Aquí se enumeran todos los argumentos para todas las funciones descritas en la página de ayuda; no todos los argumentos están disponibles para todas las funciones enumeradas. Por ejemplo, en esta página de ayuda, los argumentos `from` y `to` no están disponibles para la función `seq_along()`.
+* **Detalles**: proporcione detalles en profundidad del funcionamiento interno de las funciones. Algunos casos específicos se pueden discutir aquí o se puede proporcionar información adicional.
+* **Valor**: explica cuál es el valor de retorno de la función.
+* **Referencias**: Fuentes utilizadas como base para la función o lecturas interesantes sobre el tema.
+* **Ver también**: Funciones relacionadas que en ocasiones pueden ser de utilidad, especialmente cuando se busca la función correcta para nuestras necesidades.
+* **Ejemplos**: algunos ejemplos sobre cómo utilizar las funciones.
+
+***
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+* EJERCICIO 12:
+
+a) Crea una secuencia de números pares del 0 al 10 usando la función `seq`
+
+b)  - Crea un vector sin clasificar de tus números favoritos.
+    - Descubre cómo ordenarlo usando `?sort` (clasificar).
+    - Ordena tu vector en orden inverso.
+
+<div align="right">**Solución a)**</div>
+```{r, class.source='fold-hide', collapse=TRUE}
+seq(from = 0, to = 10, by = 2)
+
+# otra forma de escribirlo:
+seq(0, 10, 2)
+
+```
+
+<div align="right">**Solución b)**</div>
+```{r, class.source='fold-hide', collapse=TRUE}
+mi_secuencia <- c(2, 4, 22, 6, 26)
+sort(mi_secuencia, decreasing = TRUE)
+
+```
+</div>
+
+***
+
+### Obteniendo ayuda en la Web
+
+Por lo general, la mejor fuente de información será nuestro motor de búsqueda favorito (Google, Bing, Yahoo, etc.)
+
+Esta es una lista de algunos consejos sobre cómo utilizarlos:
+
+* Busca en inglés
+* Utiliza la palabra clave "R" al comienzo de su búsqueda.
+* Define con precisión lo que busca
+* Aprende a leer foros de discusión. Es probable que otras personas ya hayan tenido el mismo problema y hayan preguntado al respecto. Busca en foros donde a menudo se hacen preguntas sobre R, como [stackexchange](https://stats.stackexchange.com/questions/tagged/r) o [stackoverflow](https://stackoverflow.com/questions/tagged/r). También hay algunas preguntas en español en [stackoverflow en español](https://es.stackoverflow.com/questions/tagged/r)
+* ¡No dudes en volver a buscar con diferentes palabras clave!
+
+***
+
+## Recursos adicionales
+
+***
+
+### Cheat sheets (hojas de atajos y trucos)
+<https://www.rstudio.com/resources/cheatsheets/>
+Estas hojas de trucos también están disponibles directamente en RStudio y algunas de ellas han sido traducidas al español y otros idiomas!
+
+### Libros
+En este enlace puedes encontrar varios libros (gratis!!) que pueden ayudar a aprender mas sobre R:
+<https://cran.r-project.org/other-docs.html#nenglish>. Busca en la seccion de español.
