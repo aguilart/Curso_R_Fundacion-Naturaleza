@@ -115,8 +115,8 @@ El diseño del experimento es esencial para una buena y investigación y los an�
   
 Para ejecutar la mayoría de los análisis necesitamos, comunmente
 
-  2. Normalidad
-  3. Homogeneidad de varianza
+  3. Normalidad
+  4. Homogeneidad de varianza
   
 En técnicas mas avanzadas (no cubiertas en este curso) hay métodos que pueden corregir e incorporar conjuntos de observaciones que no cumplen con el supuesto de independiencia como los Modelos Generalizados Lineales Mixtos o Generalized Linear Mixed Models en inglés (GLMM)
 
