@@ -858,4 +858,4 @@ Estas hojas de trucos también están disponibles directamente en RStudio y algu
 
 ### Libros
 En este enlace puedes encontrar varios libros (gratis!!) que pueden ayudar a aprender mas sobre R:
-<https://cran.r-project.org/other-docs.html#nenglish>. Busca en la seccion de español.
+<https://cran.r-project.org/other-docs.html#nenglish>. Busca en la sección de español.
