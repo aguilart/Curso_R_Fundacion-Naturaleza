@@ -47,12 +47,12 @@ Cada año, más científicos utilizan R. Esto significa que sus capacidades est�
 ***
 
 # 2. ¿Cómo funciona R?
-R es un lenguaje de programación. A primera vista, esto puede intimidar a muchos usuarios. Sin embargo, la sintaxis de R es muy simple e intuitiva. Por ejemplo, una regresión lineal se puede ejecutar con el comando *lm(y ~ x)* . Para que una función sea ejecutada en R, debe estar siempre acompañada de paréntesis, inclusive en el caso que no haya nada dentro de los mismos (por ejemplo *lm( )*. Si se escribe el nombre de la función sin los paréntesis, R mostrar a el contenido (código) mismo de la función.
+R es un lenguaje de programación. A primera vista, esto puede intimidar a muchos usuarios. Sin embargo, la sintaxis de R es muy simple e intuitiva. Por ejemplo, una regresión lineal se puede ejecutar con el comando *lm(y ~ x)* . Para que una función sea ejecutada en R, debe estar siempre acompañada de paréntesis, inclusive en el caso que no haya nada dentro de los mismos (por ejemplo *lm( )*. Si se escribe el nombre de la función sin los paréntesis, R mostrará a el contenido (código) mismo de la función.
 
 Aunque R es muy versátil, el software base no cuenta con una interfaz muy intuitiva. Debido a esto, se han desarrollado softwares que facilitan su uso. El más popular es RStudio.
 
 ## ¿Qué es RStudio?
-RStudio es un entorno de desarrollo integrado (IDE) para R. Básicamente, es una máscara para el software base de R que nos permite visualizar y usar fácilmente el lenguaje R, visualizar tablas y figuras e incluso ejecutar todos sus análisis estadísticos. Recomendamos usarlo en lugar de la línea de comandos tradicional, ya que proporciona una gran ayuda visual y una serie de herramientas útiles, algunas de las cuales se puede aprenderá más a lo largo de este curso introductorio.
+RStudio es un entorno de desarrollo integrado (IDE) para R. Básicamente, es una máscara para el software base de R que nos permite visualizar y usar fácilmente el lenguaje R, visualizar tablas y figuras e incluso ejecutar todos sus análisis estadísticos. Recomendamos usarlo en lugar de la línea de comandos tradicional, ya que proporciona una gran ayuda visual y una serie de herramientas útiles, algunas de las cuales se aprenderá más a lo largo de este curso introductorio.
 
 ### Conociendo la interfaz de RStudio
 
