@@ -118,7 +118,7 @@ Para ejecutar la mayoría de los análisis necesitamos, comunmente
   3. Normalidad
   4. Homogeneidad de varianza
   
-En técnicas mas avanzadas (no cubiertas en este curso) hay métodos que pueden corregir e incorporar conjuntos de observaciones que no cumplen con el supuesto de independiencia como los Modelos Generalizados Lineales Mixtos o Generalized Linear Mixed Models en inglés (GLMM)
+En técnicas mas avanzadas (no cubiertas en este curso) hay métodos que pueden corregir e incorporar conjuntos de observaciones que no cumplen con el supuesto de independencia como los Modelos Generalizados Lineales Mixtos o Generalized Linear Mixed Models en inglés (GLMM)
 
 #### Histograma
 
