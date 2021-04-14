@@ -195,7 +195,7 @@ promedio_x
 
 ```
 
-Aquí, `(8 + 5 + 4)/3` es el valor que desea guardar como objeto. A este valor se le asigna el identificador `promedio_x`. Escribir `promedio_x` nos muestra el valor del cálculo (es decir, `5.67`). Hay que prestar mucha atención al escribir el identificador porque R distingue entre mayúsculas y minúsculas: escribir `promedio_x` no es lo mismo que escribir `PROMEDIO_X`. También podemos observar que el operador de asignación `<-` crea un vínculo explícito entre el valor y el identificador. Siempre apunta del valor al identificador. Debemos tomar en cuenta que también es posible usar el signo igual `=` como operador de asignación, pero es preferible no hacerlo porque también se usa para otras operaciones en R, lo que puede causar problemas al usarlo para la asignación. Finalmente, es importante saber que el operador `<-` y `=` sigue su propio orden de prioridades.
+Aquí, `(8 + 5 + 4)/3` es el valor que desea guardar como objeto. A este valor se le asigna el identificador `promedio_x`. Escribir `promedio_x` nos muestra el valor del cálculo (es decir, `5.67`). Hay que prestar mucha atención al escribir el identificador porque R distingue entre mayúsculas y minúsculas: escribir `promedio_x` no es lo mismo que escribir `PROMEDIO_X`. También podemos observar que el operador de asignación `<-` crea un vínculo explícito entre el valor y el identificador. Siempre apunta el valor al identificador. Debemos tomar en cuenta que también es posible usar el signo igual `=` como operador de asignación, pero es preferible no hacerlo porque también se usa para otras operaciones en R, lo que puede causar problemas al usarlo para la asignación. Finalmente, es importante saber que el operador `<-` y `=` siguen su propio orden de prioridades.
 
 ```{r collapse=TRUE, prompt=TRUE,error=TRUE}
 y <- x = 8
@@ -290,10 +290,10 @@ vector_num <- c(13, 5, 9, 74, -46, -17)
 # Ahora un vector de caracteres. Recordemos el uso de "" para delimitar textos
 vector_car <- c("rojo", "azul", "amarillo chiltota")
 
-# Ahora un vector logico (o 'boolean'). No hay que usar "" porque de otro modo R interpretara esto como caracteres
+# Ahora un vector lógico (o 'boolean'). No hay que usar "" porque de otro modo R interpretara esto como caracteres
 vector_logico <- c(TRUE, FALSE, TRUE)
 
-# Tambien se puede utilizar abreviaciones para vectores logicos
+# Tambien se puede utilizar abreviaciones para vectores lógicos
 vector_logico2 <- c(T,F,T)
 
 
@@ -307,7 +307,7 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 <div class = "blue">
 * EJERCICIO 6:
 
-Crea un vector que tenga los primeros cinco numeros impares (empezando por 1). Puedes llamarlo `num_impar`
+Crea un vector que tenga los primeros cinco números impares (empezando por 1). Puedes llamarlo `num_impar`
 
 <div align="right">**Solución**</div>
 ```{r, class.source='fold-hide', collapse=TRUE}
@@ -370,7 +370,6 @@ mi_df <- data.frame (id_sitio, pH_suelo, num_sp, tratamiento)
 mi_df
 
 ```
-
 
 Los otros tipos de objetos incluyen matrices (*matrix*), arreglos (*arrays*) y listas (*lists*). Una matriz es similar a un marco de datos, excepto que todas las celdas de la matriz deben ser del mismo tipo (e.g., numerico). Un *array* es similar a una matriz, pero puede tener más de dos dimensiones. Las *arrays* se utilizan generalmente para cálculos avanzados como simulaciones numéricas y pruebas de permutación. Una lista es una agregación de varios tipos de objetos. Por ejemplo, una lista podría incluir un vector, un marco de datos y una matriz en el mismo objeto.
 
