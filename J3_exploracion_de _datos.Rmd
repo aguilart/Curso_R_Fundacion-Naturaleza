@@ -63,7 +63,7 @@ Definamos las variables:
 **Petal.Width** El ancho de los pétalos en milímetros
 **Species** Las especies estudiadas
 
-![Iris_nc_mal_escrito_jajaja](C:/Users/SGM/Documents/SED STATS AND R/Stats workshop/iris.png){width="600" height="1000"} 
+![Iris_nc_mal_escrito_jajaja](images\Jornada 3\iris.png){width="600" height="1000"} 
 
 ### EL PRIMER ACERCAMIENTO
 
@@ -164,7 +164,7 @@ Cajas_y_bigotes
   
   Aun no es claro...
   
-![Caja](C:/Users/SGM/Documents/SED STATS AND R/Stats workshop/Diagrama_de_caja.jpg){width="600" height="1000"} 
+![Caja: FUENTE WIKIPEDIA](images\Jornada 3\Diagrama_de_caja.jpg){width="600" height="1000"} 
 Seria ahora interesante ver como se comportan estos datos entre las especies.
 ```{r}
 Cajas_y_bigotes2<-ggplot(data=iris, aes(y=Petal.Length, x=Species, fill=Species))+
@@ -580,7 +580,7 @@ ggplot(data = iris_no_setosa, aes(x = seq_along(residuos), y = residuos)) +
   theme(plot.title = element_text(hjust = 0.5), legend.position = "none")
 ```
 
-El metodo alternativo es ocupar la función que viene incorporada por defecto en R y generar un conjunto de gráficos con la misma informacion
+El método alternativo es ocupar la función que viene incorporada por defecto en R y generar un conjunto de gráficos con la misma informacion
 
 ```{r}
 par(mfrow = c(2,2))
@@ -631,7 +631,6 @@ El unico supuesto que es adicional es:
   ##Pongamos a prueba los supuestos graficamente
   
 ##### 1. Linealidad: La relación entre ambas variables debe ser lineal.
-  
 ```{r}
 ggscatter(
   iris, x = "Sepal.Width", y ="Sepal.Length" ,
@@ -699,7 +698,7 @@ get_anova_table(res.ancova)
 Para indentificar los grupos que son diferentes podemos recurrir a la comparacion multiple utilizando el factor de corrección de Bonferrani.
 
 ```{r}
-# Comparacion por pares
+# Comparación por pares
 pwc <- iris %>% 
   emmeans_test(
     Sepal.Length ~ Species, covariate = Sepal.Width,
