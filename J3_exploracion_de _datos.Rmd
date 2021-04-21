@@ -1,0 +1,755 @@
+---
+title: "J3_exploracion_de_datos"
+author: "SGM"
+date: "30/03/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**IMPORTANTE** 
+Recuerda que antes de adjuntar las librerias debes instalar los paquetes estadisticos. Para ello utiliza el código:
+
+install.packages("dplyr")
+install.packages("DHARMa")
+install.packages("ggplot2")
+install.packages("multcompView")
+install.packages("lmtest")
+install.packages("ggrepel")
+install.packages("tidyverse")
+install.packages("ggpurb")
+install.packages("rstatix")
+install.packages("broom")
+install.packages("emmeans")
+
+es recomendable que corras el codigo anterior en la consola (ventana inferior izquierda).
+
+# LIBRERIAS
+```{r}
+library(dplyr)# manipulación de datos y transferencia (piping)
+library(DHARMa)# análisís de los supuestos
+library(ggplot2)# gráficos
+library(multcompView)# gráficos para la prueba de Tuckey HDS
+library(car)# para ejecutar la prueba de Levene
+library(lmtest)# Test de Breush-Pagan
+library(ggrepel)# Edición de gráficos y ubicación de viñetas
+library(tidyverse)# para ANCOVA
+library(ggpubr)#para ANCOVA
+library(rstatix)#para  ANCOVA
+library(broom)#para  ANCOVA
+library(emmeans)# Post hoc análisis
+```
+#CONTENIDO
+## ANALISIS EXPLORATORIO DE DATOS
+## ANDEVA o ANOVA
+## REGRESION LINEAL SIMPLE
+## ANCOVA
+
+##ANALISIS EXPLORATORIO DE DATOS
+
+### EXPLORACIÓN DE DATOS
+
+En esta sesión aprenderemos como conducir análisis exploratorios en datos, particularmente para detectar patrones y posibles desviaciones de los supuestos necesarios para conducir pruebas estadísticas. Los datos pueden ser representados y resumidos de muchas formas en R. Como ya lo habrás notado en nuestra sesión previa, el uso de gráficos durante el análisis exploratorio es de gran utilidad para validar la distribution y posibles tendencias de nuestros datos. Además puede proveer indicios de como ajustar tus datos en caso de que no correspondan con los supuestos. Recuerda **NUNCA PASES POR ALTO LOS ANÁLISIS EXPLORATORIOS** esto puede salvarte mucho tiempo y evitar interpretaciones tendenciosas y no justificadas.
+
+#LOS DATOS
+Para esta sesión vamos a utlizar la base de datos **"iris"** que se encuentra adjunta en r, por lo tanto no necesitas cargarla. Esta base de datos presenta 5 variables. 
+
+Definamos las variables:
+**Sepal.Length** La longitud de los sépalos en milímetros
+**Sepal.Width** El ancho de los los sépalos en milímetros
+**Petal.Length** La longitud de los pétalos en milímetros
+**Petal.Width** El ancho de los pétalos en milímetros
+**Species** Las especies estudiadas
+
+![Iris_nc_mal_escrito_jajaja](C:/Users/SGM/Documents/SED STATS AND R/Stats workshop/iris.png){width="600" height="1000"} 
+
+### EL PRIMER ACERCAMIENTO
+
+Una forma fácil y sencilla de obtener informacion resumida de nuestras variables es la función glance:
+```{r}
+glance(iris)
+#head(iris)
+#tail(iris)
+#glimpse(iris)
+#View(iris)# no recomendada para procesos de replicabilidad porque tiene conflictos con Knitting
+#summary(iris)
+```
+Es importante notar que para los factores y variables lógicas, la función summary nos retorna el número de observaciones en cada nivel. Para variables numéricas (ambos enteros y con decimales), se retorna el mínimo, máximo, primer y tercer quartil la media y la mediana. Aunque es un forma fácil la desventaja es que no muestra los datos por grupo, en este caso especie. Además, en muchos casos entender nuestros datos basado estos números nos llevaría un poco de tiempo. 
+
+Existe una alternativa que nos permite evaluar otros aspectos de la base de datos, la función str()
+```{r}
+str(iris)
+```
+En este caso nos muestra el tipo de variable y algunos detalles sobre ellas.
+
+Otra forma de explorar nuestros datos consiste en detectar si hay valores incompletos o no reportados en nuestra base de datos. Para ello se utiliza la función is.na() que puede ser aplicada a toda la matriz o a una variable en particular
+```{r}
+is.na(iris)
+is.na(iris$Sepal.Length)
+```
+
+Por ejemplo, imagina que en la base de datos iris, existe un factor que ya no es de interés, como una especie que ya no se desea estudiar y quieres quitarla de tu base de datos. Como en este caso es solo un ejercicio, y en realidad no quiero modificar la base de datos, voy a crear una copia con un nuevo nombre para remover la especie setosa de la variable Species. Esta nueva base se llamará iris_no_setosa
+```{r}
+iris_no_setosa=iris[!(iris$Species=="setosa"),]
+iris_no_setosa
+```
+Listo, esta base de datos no contiene el factor setosa en la variable especie. Sin embargo cada vez que realizamos este proceso es necesario declarar la variable modificada como factor, para que el factor sea removido efectivamente
+```{r}
+levels(iris_no_setosa$Species)
+```
+```{r}
+iris_no_setosa=iris_no_setosa %>% mutate(Species=factor(Species))
+levels(iris_no_setosa$Species)
+```
+
+### GRÁFICOS
+
+Representar nuestros datos graficamente es la mejor manera de determinar la distribución, detectar valores anómalos o extremos y patrones relevantes en nuestros datos antes de seleccionar un análisis. Además, nos puede indicar las posibles soluciones que debemos aplicar a nuestros datos en caso de ser necesario o dar pistas sobre análisis que podriamos ejecutar para obtener mayor información de ellos.
+
+La gran mayoría de análisis requiere que los datos
+  1. Hayan sido colectados por medio de Muestreo Aleatorio Simple (Dificil de lograr en biología), pero necesario
+  2. Cada observación sea independiente
+El diseño del experimento es esencial para una buena y investigación y los análisis, incluso los más robustos, no pueden compensar las carencias dejadas por un diseño sesgado, débil y erróneo. Por lo tanto es importante dar enfásis a este paso. Esto no será estudiado en este curso, pero vale la pena mencionar que antes de colectar tus datos, diseñes tu experimento. BUsca ayuda con alguin con experiencia y pricipalmente con personas en el área de estadística.
+  
+Para ejecutar la mayoría de los análisis necesitamos, comunmente
+
+  3. Normalidad
+  4. Homogeneidad de varianza
+  
+En técnicas mas avanzadas (no cubiertas en este curso) hay métodos que pueden corregir e incorporar conjuntos de observaciones que no cumplen con el supuesto de independencia como los Modelos Generalizados Lineales Mixtos o Generalized Linear Mixed Models en inglés (GLMM)
+
+#### Histograma
+
+El histograma de frecuencias es una alterniva excelente para observar la distribucion de variables continuas. Presenta una idea rapida de si los datos se ajustan a una distribucion normal y la presencia de valores extremos. Construyamos un histograma para nuestras variables numericas continuas.
+```{r}
+histograma<-ggplot(data=iris, aes(Petal.Length))+
+  geom_histogram()+ #Draw histogram with probabilities
+  xlab("Longitud del Petalo(mm)")+
+  ylab("Frecuencia")
+histograma
+```
+
+```{r}
+histograma2<-ggplot(data=iris, aes(Sepal.Length))+
+  geom_histogram()+ #Draw histogram with probabilities
+  xlab("Longitud del sepalo (mm)")+
+  ylab("Frecuencia")+
+facet_wrap(~Species)
+histograma2
+```
+
+```{r}
+histograma<-ggplot(data=iris, aes(Sepal.Length))+
+  geom_histogram()+ #Draw histogram with probabilities
+  xlab("Longitud del sepalo")+
+  ylab("Frecuencia")+
+stat_function(fun = dnorm, args = list(mean = mean(iris$Sepal.Length), sd = sd(iris$Sepal.Length)))
+histograma
+```
+
+#### Gráfico de Cajas y Bigotes
+```{r}
+Cajas_y_bigotes<-ggplot(data=iris, aes(y=Sepal.Length))+
+  geom_boxplot()
+Cajas_y_bigotes
+```
+¿Qué vemos en el gráfico?
+  - Cuartiles (25, 50, 75 percentiles), 50% representa la media
+  - Intervalo entre cuartiles es la differencia entre el percentil 75 y el percentil 25
+  - El bigote superior representa el valor máximo en nuestros datos que se encuentra a una distancia menor de 1.5 veces el rango entre quartiles, sobre el percentil 75.
+  - El bigote inferior representa el valor mínimo en nuestros datos que se encuentra a una distancia menor de 1.5 veces el el rango entre quartiles, por debajo del percentil 25
+  - los valores extremos (outliers) se consideran extremos si se encuentran a una distancia mayor de 1.5 veces la distancia entre quartiles desde el percentil 75 y por debajo del percentil 25 
+  
+  Aun no es claro...
+  
+![Caja](C:/Users/SGM/Documents/SED STATS AND R/Stats workshop/Diagrama_de_caja.jpg){width="600" height="1000"} 
+Seria ahora interesante ver como se comportan estos datos entre las especies.
+```{r}
+Cajas_y_bigotes2<-ggplot(data=iris, aes(y=Petal.Length, x=Species, fill=Species))+
+  geom_boxplot()
+Cajas_y_bigotes2
+```
+
+### Correlaciones entre variables
+
+En muchos casos es necesario determinar con anticipación el grado de relación entre las variables. En los análisis de correlación lineal y regresión lineal simple, nuestro interes es determinar si hay una relación entre dos variables, su magnitud y el potencial de una variable en influenciar el resultado de otra (x en y). Sin embargo en otros análisis como correlaciones múltiples, tener variables explicativas correlacionadas es problemático y puede reducir el poder de nuestro análisis, en este caso ultiizamos análisis exploratorios para detectar esas variables y manejarlas de forma adeacuada antes de proceder con pruebas más sofisticadas.
+
+La función pairs() es un análisis rápido y eficiente para observar estos detalles, creando una forma sencilla de detecar patrones de correlacíon entre las variables de nuestra base de datos, he aqui un ejemplo.
+```{r}
+pairs(iris)
+pairs(x=iris, lower.panel = NULL)
+pairs(x=iris, upper.panel = NULL)
+```
+
+## LA PRUEBA DE ANDEVA o ANOVA
+
+En el caso del analisis de varianza normalemnte se presenta una variable numérica de respuesta y una variable categórica con al menos dos niveles o tratamientos como variable explicativa.
+
+### 1.1 Para validar ANOVA se tiene que verificar la normalidad de la variable respuesta en este caso la longitud de los pétalos, en R esto se puede realizar asi.
+
+#### 1.2 Gráfico de cajas
+
+El gráfico de cajas puede ayudarnos aobservar la distribucion de las variables y su normalidad. Para este caso
+```{r}
+ggplot(iris, aes(y=Sepal.Length, x=Species, fill= Species))+
+  geom_boxplot()+
+ theme_bw()
+```
+Los códigos hacen referencia a:
+
+**ggplot**: la función para crear un gráfico
+**iris**: la base de datos que deseamos utilizar
+**aes (y=Petal.Length, x=Species, fill=Species)**: provee información sobre los valores a utilizar en cada eje y el color que queremos asignar al gráfico.
+**geom_boxplot()**: define el tipo de gráfico a utilizar
+**theme_bw()**: remueve el fondo.
+
+En el gráfico se observan valores extremos para el grupo virginica
+
+#### 1.3 QQplot
+
+El grafico de cuantil- cuantil (Q-Q) permite examinar normalidad. Aqui se definirá la distribución de los datos en contraste con la distribución normal teórica que se representa por la linea recta. 
+```{r}
+ggplot(iris, aes(sample = iris$Sepal.Length))+
+  stat_qq() + 
+  stat_qq_line()
+```
+El gráfico cuantil cuantil revela cierta desviación de la normalidad en los extremos superior e inferior del gráfico.
+
+#### 2. Pruebas de normalidad considerando técnicas numéricas 
+
+Las pruebas de normalidad numéricas son un cuanto estrictas y menos preferidas, especialmente porque un ANDEVA con un tamaño de muestra mayor a 30 es bastante robusto a pequeñas desvaciones de normalidad.
+
+#### PRUEBA DE NORMALIDAD: SHAPIRO-WILK Y KOLMOGORV-SMIRNOV
+
+##### Prueba Shapiro-Wilk de normalidad para la longitud de los sépalos global y por especie
+```{r}
+shapiro.test(iris$Sepal.Length)
+shapiro.test(iris$Sepal.Length[iris$Species=="virginica"])
+shapiro.test(iris$Sepal.Length[iris$Species=="setosa"])
+shapiro.test(iris$Sepal.Length[iris$Species=="versicolor"])
+```
+
+##### 2.1.2 prubea Kolmogorov Smirnov de normalidad para la longitud de los sépalos global y por especie
+
+```{r message=FALSE}
+ks.test(iris$Sepal.Length, "pnorm")
+ks.test(iris$Sepal.Length[iris$Species=="setosa"], "pnorm")
+ks.test(iris$Sepal.Length[iris$Species=="versicolor"], "pnorm")
+ks.test(iris$Sepal.Length[iris$Species=="virginica"], "pnorm")
+```
+Hay una diferencia entre las pruebas. Cuál podriamos confiar.....
+
+### 3. Prueba de HOMEGENEIDAD DE VARIANZA en R para la longitud de los sépalos global y por especie
+
+En este caso se utilizará la prueba de  Levene:
+
+##### Prueba de Levene 
+
+```{r}
+leveneTest(Sepal.Length ~ Species, data = iris)
+```
+Al examinar las varianzas entre los grupos, la prueba de Levene identifica que las varianzas entre especies no son similares, sugiriendo una  violación a este supuesto.
+
+##### 3.1.1 Prueba de Fligner
+```{r}
+fligner.test(Sepal.Length ~ Species, data = iris)
+```
+Al examinar las varianzas entre los grupos, la prueba de Fligner identifica que las varianzas entre especies no son similares, sugiriendo una  violación a este supuesto.
+
+##### 3.1.2 Gráfico de distribución de residuales para analizar la homogeneidad de varianza 
+```{r}
+plot(aov(Sepal.Length~Species, data=iris))
+```
+ 
+Observamos 3 lineas verticales que corresponde a los tres grupos para la variable specie. Los valores de los residuales graficados contra los valores ajustados indican que las lineas tienen rangos diferentes y que la varianza entre grupos difiere, sin embargo estas desviaciones son mínimas. 
+ 
+###  Análisis de varianza (ANDEVA, ANOVA)
+
+####  Análisis de varianza (ANDEVA, ANOVA) para la longitud de los sépalos entre species en R. 
+
+El Análisis de varianza (ANDEVA, ANOVA), es un método para comparar dos o más medias o promedios, que es necesario porque cuando se quiere comparar más de dos medias es incorrecto utilizar repetidamente el contraste basado en la prueba t de Student por dos motivos:
+
+En primer lugar, y como se realizarían simultánea e independientemente varios contrastes de hipótesis, la probabilidad de encontrar alguno significativo por azar aumentaría.
+
+Por otro lado, en cada comparación la hipótesis nula es que las dos muestras provienen de la misma población, por lo tanto, cuando se hayan realizado todas las comparaciones, la hipótesis nula es que todas las muestras provienen de la misma población y, sin embargo, para cada comparación, la estimación de la varianza necesaria para el contraste es distinta, pues se ha hecho en base a muestras distintas.
+
+El código base para ejecutar el análisis en R es aov que se refiere a Análisis de Varianza. Para el análisis se necesita una variable respuesta, continua o discreta, númerica y una variable categórica o factor con dos o más niveles.
+
+En este caso la hipótesis a probar es:
+
+1. H0: No hay diferencia entre las medias de los grupos y la HI: La media de al menos un grupo es diferente.
+```{r}
+aovsepalos<-aov(Sepal.Length~Species, data=iris)
+summary(aovsepalos)
+```
+
+Como interpretar estos resultados....
+
+Df corresponde a los grados de libertad (degrees of freedom), para el caso 2 es el resultado del número de grupos (Species) menos 1 (3-1=2)
+
+Para el segundo caso, los grados de libertad corresponden a el número total de muestras (150) menos el número de grupos en compración (3), entonces 150-3=147
+
+Mean Sq= Mean Sq/df= 63.21/2
+Mean Sq= Mean Sq/df= 38.96/147
+```{r}
+63.21/2
+```
+
+valor F=218.55/0.185034
+```{r}
+31.606/0.265  
+```
+
+Un valor de F que sea substancialmente mayor que 1 sugiere que la variable categórica a prueba explica en gran medida la variabilidad en los datos, más que si no hubiese una variable utilizada para explicar el fenómeno. Como consequencia las diferencias entre las observaiones pueden ser explicadas en gran medida debido a las diferencias en tratamientos mas que a una variación aleatoria.
+
+Cuando la probailidad de observar un valor the F igual o más extremo que el obtenido es menor que un valor partiuclar de alfa, que usualmente es menor a 0.05 o 0.01, asumimos que es poco probable que las muestras colectadas no sean afectadas por el tratamiento en cuestion, por lo tanto rechazamos la hipotesis nula y aceptamos la hipótesis de investigación.
+
+Ahora que sabemos que la media de al menos un grupo es diferente, procedemos a realizar un análisis más específico para determinar entre cuáles grupos existen esas diferencias. El método para realizar esta comparación es usualmente la prueba de Difererencias Honestamente significativas de Tukey (Tukey's Honestly Significant Difference (Tukey's HSD). Recuerden que un valor inferior a  0.05 (p<0.05) representa differencias significativas entre grupos.
+
+#### POST HOC Análisis y comparaciones no dirigidas
+
+```{r echo=T, results='hide'}
+TukeyHSD(aovsepalos, conf.level=0.95)
+```
+El resultado nos indica que cada grupo es diferente entre si. Este resultado se puede observar de forma gráfica asi:
+
+```{r}
+par(mar=c(3,16,2,1))
+plot(TukeyHSD(aovsepalos,conf.level=0.95,),col="red",las=1, cex.axis=0.7, xlim = c(-1,5), )
+```
+En este caso la función indica:
+
+**par(mar=c(3,16,2,1))**: la función "**par**" que es usada para ajustar parámetros del gráfico. En este caso se refiere a los margenes e incluye un vector con los datos para el fondo, lado izquierdo, parte superior y lado derecho para cada lado del area del gráfico. Usualmente los valores estan ajustados como c(5, 4, 4, 2).
+
+**plot(TukeyHSD(aovpetalos,conf.level=0.95),las=1, cex.axis=0.7, xlim = c(-1,5))**: Genera un gráfico con el resultado de la prueba de Tukey (Tukey's HSD test). Usualmente utiliza 0.95 pero pude cambiarse a 0.99 (Intentalo). La función  **las** se refiere a la orientación de las vinetas en el gráfico.0: es paralelo al eje [por defecto], 1: horizontal, 2: perpendicular al eje, 3: vertical. The última parte, cex.axis=0.7 ajusta el tamaño de la fuente con relación al gráfico. Xlim= c(-1,5) indica el ámbito para el eje x en el gráfico, en este caso desde -1 a 5
+
+## REGRESION LINENAL SIMPLE
+
+La regresión lineal simple consiste en generar un modelo de regresión (ecuación de una recta) que permita explicar la relación lineal que existe entre dos variables. A la variable dependiente o respuesta se le identifica como Y y a la variable predictora o independiente como X.
+
+La prueba de significancia para la pendiente (β1) del modelo lineal considera como hipótesis:
+H0: No hay relación lineal entre ambas variables por lo que la pendiente del modelo lineal es cero. β1=0
+Ha: Sí hay relación lineal entre ambas variables por lo que la pendiente del modelo lineal es distinta de cero. β1≠0
+
+### SUPUESTOS DE LA REGRESION LINEAL SIMPLE
+
+  1. Linealidad: La relación entre ambas variables debe ser lineal. 
+  2. Distribución Normal de los residuos: Los residuos se tiene que distribuir de forma normal, con media igual a 0. 
+  3. Varianza de residuos constante (homocedasticidad): La varianza de los residuos ha de ser aproximadamente constante a lo largo del eje x
+  4. Valores atípicos y de alta influencia: Hay que estudiar con detenimiento los valores atípicos o extremos ya que pueden generar una falsa correlación que realmente no existe, u ocultar una existente. 
+  5. Independencia, Autocorrelación: Las observaciones deben ser independientes unas de otras. Esto es importante tenerlo en cuenta cuando se trata de mediciones temporales. 
+
+Debido a que los supuestos se validan a partir de los residuos, primero se suele generar el modelo y después se validarlo por medio de los residuos. Este es un proceso iterativo iterativo en el que se ajusta un modelo inicial, se evalúa mediante sus residuos y se mejora. 
+
+**PARA ESTE EJEMPLO SE UTILIZARA LA BASE QUE HEMOS CREADO   iris_no_setosa, que excluye la especie setosa la cuál es particularmente diferente**.
+
+```{r}
+head(iris_no_setosa)
+```
+
+### Observacion y detección de la tendencias
+
+La forma mas fácil de detectar tendencias es por medio de gráficos (analisis exploratorios).
+```{r}
+ggplot(data = iris_no_setosa, mapping = aes(x = Petal.Width, y = Petal.Length)) +
+  geom_point(color = "firebrick", size = 2) +
+  labs(title  =  'Diagrama de dispersión', x  =  'Ancho del pétalo (mm)', y="Longitude del pétalos (mm)") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+La forma númerica de hacerlo, es con un análisis de correlación
+```{r}
+cor.test(x = iris_no_setosa$Petal.Length, y = iris_no_setosa$Petal.Width, method = "pearson")
+```
+Parece que existe una relación lineal entre las variables, ejecutemos el modelo.
+```{r}
+lm_pet_sep <- lm(Petal.Length ~ Petal.Width, data=iris_no_setosa)
+# lm() devuelve el valor de la variable y para x=0 (intersección) junto 
+# con la pendiente de la recta.
+# Para ver la información del modelo se requiere summary().
+summary(lm_pet_sep)
+```
+La primera columna (Estimate) devuelve el valor estimado para los dos parámetros de la ecuación del modelo lineal (β0^ y β1^) que equivalen a la ordenada en el origen y la pendiente.
+
+Se muestran los errores estándar, el valor del estadístico t y el p-value (dos colas) de cada uno de los dos parámetros. Esto permite determinar si los parámetros son significativamente distintos de 0, es decir, que tienen importancia en el modelo. En los modelos de regresión lineal simple, el parámetro más informativo suele ser la pendiente.
+
+Para el modelo generado, tanto la ordenada en el origen como la pendiente son significativas (p-values < 0.05).
+
+El valor de R2 indica que el modelo calculado explica el 37.29% de la variabilidad presente en la variable respuesta (Petal.Length) mediante la variable independiente (Petal.Width).
+
+El p-value obtenido en el test F (< 2.2e-16) determina que sí es significativamente superior la varianza explicada por el modelo en comparación a la varianza total. Es el parámetro que determina si el modelo es significativo y por lo tanto se puede aceptar la aplicacion de este modelo.
+
+El modelo lineal generado sigue la ecuación Petal.Length = 2.2240  + 1.6003 Petal.Width. Por cada unidad que se incrementa el el ancho del petalo, la longitud del petalo aumenta en promedio de.1.6003 unidades.
+
+### Intervalos de confianza en el Modelo
+```{r}
+confint(lm_pet_sep)
+```
+
+#### El grafico...la fotografia de nuestro modelo
+
+```{r}
+ggplot(data = iris_no_setosa, mapping = aes(x = Petal.Width, y = Petal.Length)) +
+  geom_point(color = "firebrick", size = 2) +
+  labs(title  =  'Longitud del petalo ~ Ancho del petalo', x  =  'Ancho del petalo (mm)', y="Longitud del petalo (mm)")+
+  geom_smooth(method = "lm", se = FALSE, color = "black") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+Además de la línea de mínimos cuadrados es recomendable incluir los límites superior e inferior del intervalo de confianza. Esto permite identificar la región en la que, según el modelo generado y para un determinado nivel de confianza, se encuentra el valor promedio de la variable dependiente.
+
+Para poder representar el intervalo de confianza a lo largo de todo el modelo se recurre a la función predict() para predecir valores que abarquen todo el eje X. Se añaden al gráfico líneas formadas por los límites superiores e inferiores calculados para cada predicción.
+
+```{r}
+# Se genera una secuencia de valores x_i que abarquen todo el rango de las  observaciones de la variable X
+intervalo <- seq(from = min(iris_no_setosa$Petal.Width),
+              to = max(iris_no_setosa$Petal.Length),
+              length.out = 100)
+# Se predice el valor de la variable Y junto con su intervalo de confianza para cada uno de los puntos generados. En la función predict() hay que nombrar a los nuevos puntos con el mismo nombre que la variable X del modelo.
+
+# Devuelve una matriz.
+limites_intervalo <- predict(object = lm_pet_sep,
+                             newdata = data.frame(Petal.Width = intervalo),
+                             interval = "confidence", level = 0.95)
+head(limites_intervalo, 3)# 3 este caso indica que solo queremos ver los primeros tres valores, en realidad hay 100 aqui
+```
+
+```{r}
+# Finalmente se añaden al gráfico las líneas formadas por los límites superior e inferior.
+plot(iris_no_setosa$Petal.Width, iris_no_setosa$Petal.Length, col = "firebrick", pch = 19, ylab = "Longitud del petalo (mm)",
+     xlab = "Ancho del petalo (mm)", main = 'Petal.Length ~ Petal.Width')
+abline(lm_pet_sep, col = 1)
+lines(x = intervalo, y = limites_intervalo[,2],type = "l", col = 2, lty = 3)
+lines(x = intervalo, y = limites_intervalo[,3],type = "l", col = 3, lty = 3)
+```
+
+La función geom_smooth() del paquete ggplot2 genera la regresión y su intervalo de forma directa, ahorrandonos los paso anteriores
+```{r}
+ggplot(data = iris_no_setosa, aes(x = Petal.Width, y = Petal.Length)) +
+  geom_point() +
+  labs(title  =  'Longitud del petalo ~ Ancho del petalo', x  =  'Ancho del petalo (mm)', y="Longitud del petalo (mm)")+
+  geom_smooth(method = "lm", se = TRUE, color = "firebrick") +
+  theme_bw() 
+```
+# Validacion del modelo, analisis y verificacion de los supuestos
+
+  1. Linealidad: La relación entre ambas variables debe ser lineal.
+  2. Distribución Normal de los residuos: Los residuos se tiene que distribuir de forma normal, con media igual a 0. 
+  3. Varianza de residuos constante (homocedasticidad): La varianza de los residuos ha de ser aproximadamente constante a lo largo del eje x
+  4. Valores atípicos y de alta influencia: Hay que estudiar con detenimiento los valores atípicos o extremos ya que pueden generar una falsa correlación que realmente no existe, u ocultar una existente. 
+  5. Independencia, Autocorrelación: Las observaciones deben ser independientes unas de otras. Esto es importante tenerlo en cuenta cuando se trata de mediciones temporales. 
+  
+  1. Linealidad: La relación entre ambas variables debe ser lineal.
+```{r}
+# La función lm() calcula y almacena los valores predichos por el modelo y los residuos.
+iris_no_setosa$prediccion <- lm_pet_sep$fitted.values
+iris_no_setosa$residuos   <- lm_pet_sep$residuals
+head(iris_no_setosa)
+```
+Veamolo gráficamente
+```{r}
+ggplot(data = iris_no_setosa, aes(x = prediccion, y = residuos)) +
+  geom_point(aes(color = residuos), size=4) +
+  scale_color_gradient2(low = "blue3", mid = "grey", high = "red") +
+  geom_hline(yintercept = 0) +
+  geom_segment(aes(xend = prediccion, yend = 0), alpha = 0.2) +
+  labs(title = "Distribución de los residuos", x = "predicción modelo",
+       y = "residuo") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none")
+```
+No se observa ningun patron en particular, los residuos se distribuyen de forma aleatoria entorno al 0 por lo que se acepta la linealidad.
+
+  2. Distribución Normal de los residuos: Los residuos se tiene que distribuir de forma normal, con media igual a 0. 
+
+Los residuos se deben distribuir de forma normal con media 0. Para comprobarlo se recurre a histogramas, a los cuantiles normales o a un test de contraste de normalidad.
+```{r}
+ggplot(data = iris_no_setosa, aes(x = residuos)) +
+  geom_histogram(aes(y = ..density..)) +
+  labs(title = "histograma de los residuos") +
+  theme_light()
+```
+```{r}
+qqnorm(lm_pet_sep$residuals)
+qqline(lm_pet_sep$residuals)
+```
+
+```{r}
+shapiro.test(lm_pet_sep$residuals)
+```
+Tanto la representación gráfica como el contraste de hipótesis revelan que los residuos no siguen una distribución normal.
+
+  3. Varianza constante de los residuos (Homocedasticidad):
+
+La variabilidad de los residuos debe de ser constante a lo largo del eje X. Un patrón cónico es indicativo de falta de homogeneidad en la varianza.
+```{r}
+ggplot(data = iris_no_setosa, aes(x = prediccion, y = residuos)) +
+  geom_point(aes(color = residuos)) +
+  scale_color_gradient2(low = "blue3", mid = "grey", high = "red") +
+  geom_segment(aes(xend = prediccion, yend = 0), alpha = 0.2) +
+  geom_smooth(se = FALSE, color = "firebrick") +
+  labs(title = "Distribución de los residuos", x = "predicción modelo",
+       y = "residuo") +
+  geom_hline(yintercept = 0) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none")
+```
+Parece que existe un patron en la varianza, pongamolo a prueba con el analisis de Breush-Pagan
+```{r}
+# Test de Breush-Pagan
+bptest(lm_pet_sep)
+```
+Se confirma que existe un patron en la varainza tanto en la representación gráfica como el contraste de hipótesis.
+
+  4. Valores atípicos y de alta influencia: Hay que estudiar con detenimiento los valores atípicos o extremos ya que pueden generar una falsa correlación que realmente no existe, u ocultar una existente. 
+  
+  a.El valor real se aleja mucho del valor predicho, por lo que su residuo es excesivamente grande. En una representación bidimensional se corresponde con desviaciones en el eje Y.
+  
+   b. Observación influyente: Observación que influye sustancialmente en el modelo, su exclusión afecta al ajuste. No todos los outliers tienen por qué ser influyentes.
+
+  c. Observación con alto leverage: Observación con un valor extremo para alguno de los predictores. En una representación bidimensional se corresponde con desviaciones en el eje X. Son potencialmente puntos influyentes.
+  
+```{r}
+iris_no_setosa$studentized_residual <- rstudent(lm_pet_sep)
+ggplot(data = iris_no_setosa, aes(x = prediccion, y = abs(studentized_residual))) +
+  geom_hline(yintercept = 3, color = "grey", linetype = "dashed") +
+  # se identifican en rojo observaciones con residuos studentized absolutos > 3
+  geom_point(aes(color = ifelse(abs(studentized_residual) > 3, 'red', 'black'))) +
+  scale_color_identity() +
+  #se muestra la specie al que pertenece la observación atípica
+  geom_text_repel(data = filter(iris_no_setosa, abs(studentized_residual) > 3),
+                  aes(label = Species)) +
+  labs(title="Distribución de los residuos studentized", x="predicción modelo") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none")
+```
+
+Por fortuna no hay valores extremos. En caso de que existiesen y los quisieras encontrar puedes utilizar el código
+
+```{r}
+iris_no_setosa %>% filter(abs(studentized_residual) > 3)
+```
+Si quisieras detectar su ubicación en la base de datos
+```{r}
+which(abs(iris_no_setosa$studentized_residual) > 3)
+```
+El hecho de que un valor sea atípico o con alto grado de leverage no implica que sea influyente en el conjunto del modelo. Sin embargo, si un valor es influyente, suele ser o atípico o de alto leverage. En R se dispone de la función outlierTest() del paquete car y de las funciones influence.measures(), influencePlot() y hatvalues() para identificar las observaciones más influyentes en el modelo.
+
+```{r}
+summary(influence.measures(model = lm_pet_sep))
+```
+
+```{r}
+influencePlot(model = lm_pet_sep)
+```
+
+Las funciones influence.measures() e influencePlot() detectan la observación 7 como atípica pero no significativamente influyente. Sí detectan como influyente la observación que ocupa la segunda posición. Para evaluar hasta qué punto condiciona el modelo, se recalcula la recta de mínimos cuadrados excluyendo esta observación.
+```{r}
+ggplot(data = iris_no_setosa, mapping = aes(x = Petal.Width, y = Petal.Length)) +
+  geom_point(color = "grey50", size = 2) +
+  geom_smooth(method = "lm", se = FALSE, color = "black") +
+  #se resalta el valor excluido
+  geom_point(data = iris_no_setosa[c(51,58,60,65,73,80,85),], color = "red", size = 2) +
+  #se añade la nueva recta de mínimos cuadrados
+  geom_smooth(data = iris_no_setosa[-c(51,58,60,65,73,80,85),], method = "lm", se = FALSE, color = "blue") +
+  labs(title  =  'Longitude del Petalo (mm)', x  =  'Ancho del Petalo (mm)') +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none")
+```
+La eliminación del valor identificado como influyente levemente cambia la recta de mínimos cuadrados. Para conocer con exactitud el resultado de excluir la observación se comparan las pendientes de ambos modelos.
+
+```{r}
+lm(formula = Petal.Length ~ Petal.Width, data = iris_no_setosa)$coefficients
+lm(formula = Petal.Length ~ Petal.Width, data = iris_no_setosa[-c(51,58,60,65,73,80,85),])$coefficients
+```
+  
+   5. Independencia, autocorrelación: Las observaciones deben ser independientes unas de otras. Esto es importante tenerlo en cuenta cuando se trata de mediciones temporales. 
+
+Cuando se trabaja con intervalos de tiempo, es muy importante comprobar que no existe aoutocorrelación de los residuos, es decir que son independientes. Esto puede hacerse detectando visualmente patrones en la distribución de los residuos cuando se ordenan según se han registrado o con el test de Durbin-Watson dwt() del paquete Car.
+
+```{r}
+ggplot(data = iris_no_setosa, aes(x = seq_along(residuos), y = residuos)) +
+  geom_point(aes(color = residuos)) +
+  scale_color_gradient2(low = "blue3", mid = "grey", high = "red") +
+  geom_line(size = 0.3) +
+  labs(title = "Distribución de los residuos", x = "index", y = "residuo") +
+  geom_hline(yintercept = 0) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none")
+```
+
+El metodo alternativo es ocupar la función que viene incorporada por defecto en R y generar un conjunto de gráficos con la misma informacion
+
+```{r}
+par(mfrow = c(2,2))
+plot(lm_pet_sep)
+```
+
+#### Conclusión
+
+El modelo se adhiere a los supuestos de linearidad (1), carencia de valores atipicos (4) independencia (5), pero no cumple los supuestos de normalidad en los residuos (2) y homocedasticidad (3). Por lo tanto se debe ser cuidadoso alinterpretar el model si es que se acepta, considerar válido un modelo de regresión lineal por mínimos cuadrados. El valor de probabilidad  (p-value) indica que el ajuste es significativo, se puede aceptar el modelo lineal. El valor de R2 es modesto, por lo que se podria considerar que el ancho del pétalo es un buen predictor de la longitud del pétalo.
+
+#### PARA ANALIZAR.....
+
+Cuando los modelos no cumplen los supuestos, se pueden realizar algunos pasos para mejorar este proceso. Entre ellos: transformar las variables, incluir mas variables explicativas o ajustar la variable respuesta a otro tipo de distribucion. Estos aspectos no seran explorados en este curso, pero hay bastante informacion sobre ello disponible en linea. Tambien, en cursos mas avanzados de la Fundacion Naturaleza El Salvador.
+
+### ANALISIS DE COVARIANZA (ANCOVA)
+
+Hasta ahora hemos visto como analizar variables respuesta, en relacion a variables explicativas categoricas (llamadas tratamientos o factores) en el Analisis de varianza  y hemos ejecutado el mismo proceso para analisis que involucran variables explicativas continuas, como en el caso de la regresión lineal simple. 
+
+Si aumentamos la complejidad de estos fenomenos podriamos predecir la misma variable, combinando dos variables explicativas, una categórica y otra continua: ANCOVA.
+
+El Análisis de la Covarianza tiene las siguientes características:
+
+  1.Tiene en cuenta la influencia de las variables concomitantes sobre la variable observable o respuesta.
+  2.La variable concomitante es siempre cuantitativa. Cada réplica debe tener asociado un valor de la variable concomitante.
+  3.Las variables concomitantes no se utilizan como variables de referencia para contrastar hipótesis. Lo que se pretende es eliminar su influencia sobre la variable observable.
+  4.La varianza del diseño queda reducida al introducir una variable concomitante. Una consecuencia es el aumento de la precisión en las conclusiones.
+  5.En general se logra simplificar el diseño, reduciendo el número de factores, lo que redundará en un número menor de réplicas.
+La interpretación del diseño es más fácil cuando los factores sólo influyen en la variable respuesta y no en las variables concomitantes.
+
+### Escenario de nuestra investigacion
+
+Los datos colectados en la matriz iris indican que existe una relacion entre la longitud del sepalo y el ancho del sepalo, sin embargo, como biologos acusiosos sospechamos que esta relación podria ser influenciada por la especie en estudio. Por ello, ahora queremos reconstruir nuestros análisis previos considerando que: la longitud de los sépalos es diferente entre las especies y estas diferencias existen cuando se controla la influencia de ancho de los sépalos. 
+
+##### Supuestos del Analisis de covarianza (ANCOVA)
+
+Podemos ver al ANCOVA como un ANOVA o ANDEVA con una variable continua adicional o por otra parte, como una regresion lineal con una variable categorica incluida. No es sorpresa que los supuestos para este analisis sean muy similares a los requeridos por ANOVA y la Regresion Lineal Simple:
+
+  1. Linealidad: La relación entre ambas variables debe ser lineal.
+  2. Distribución Normal de los residuos: Los residuos se tiene que distribuir de forma normal, con media igual a 0. 
+  3. Varianza de residuos constante (homocedasticidad): La varianza de los residuos ha de ser aproximadamente constante a lo largo del eje x
+  4. Valores atípicos y de alta influencia: Hay que estudiar con detenimiento los valores atípicos o extremos ya que pueden generar una falsa correlación que realmente no existe, u ocultar una existente. 
+  5. Independencia, Autocorrelación: Las observaciones deben ser independientes unas de otras. Esto es importante tenerlo en cuenta cuando se trata de mediciones temporales. 
+  
+El unico supuesto que es adicional es:
+
+  6. Homogeneidad de pendientes. Este supuesto requiere que no haya una interación significativa entre la covariables y la variable de agrupación o variable categórica.
+  
+  ##Pongamos a prueba los supuestos graficamente
+  
+##### 1. Linealidad: La relación entre ambas variables debe ser lineal.
+  
+```{r}
+ggscatter(
+  iris, x = "Sepal.Width", y ="Sepal.Length" ,
+  color = "Species", add = "reg.line"
+  )+
+  stat_regline_equation(
+    aes(label =  paste(..eq.label.., ..rr.label.., sep = "~~~~"), color = Species)
+    )
+```
+Podemos detectar que la relación entre la variable de respuesta y las variables de predicción tienen una relación lineal, en cada una de las species.
+
+##### 2. Distribución Normal de los residuos: Los residuos se tiene que distribuir de forma normal, con media igual a 0. Como mencionamos anteriomente, se requiere realizar un modelo antes de verificar los supuestos. 
+
+```{r}
+# AJusta el model y recuerda incluir la covariable primero.
+model <- lm(Sepal.Length ~ Species*Sepal.Width, data = iris)
+# Invesctiona los datos diagnosticos del modelo.
+metricas.modelo <- augment(model) %>%
+  select(-.hat, -.sigma, -.fitted,) # Remove details
+head(metricas.modelo, 3)
+```
+```{r}
+# Assess normality of residuals using shapiro wilk test
+shapiro_test(metricas.modelo$.resid)
+```
+
+No podemos asumir normalidad en los residuales, debido a que la prueba arroja on valor inferior a 0.05
+
+##### 3. Varianza de residuos constante (homocedasticidad): La varianza de los residuos ha de ser aproximadamente constante a lo largo del eje x
+
+```{r}
+metricas.modelo %>% levene_test(.resid ~ Species)
+```
+
+La prueba de Levene es significativa (p < 0.05), NO podemos asumir que las varianzas son homogeneas.
+
+##### 4. Valores atípicos y de alta influencia: Hay que estudiar con detenimiento los valores atípicos o extremos ya que pueden generar una falsa correlación que realmente no existe, u ocultar una existente. 
+
+```{r}
+metricas.modelo %>% 
+  filter(abs(.std.resid) > 3) %>%
+  as.data.frame()
+```
+
+Parece que existe una observacion que puede ser atipica. Sin embargo, se mantendra en el analisis debido a que en la representacion grafico no parece ser tan extrema.
+
+##### 5. Independencia, Autocorrelación: Las observaciones deben ser independientes unas de otras. Esto es importante tenerlo en cuenta cuando se trata de mediciones temporales. 
+  
+##### 6. Homogeneidad de pendientes. Este supuesto requiere que NO haya una interacion significativa entre la covariables y la variable de agrupacion o variable categorica.
+```{r}
+iris %>% anova_test(Sepal.Length ~ Species*Sepal.Width)
+```
+
+### Ejecutando el ANCOVA
+
+El orden de las variables es importante en ANCOVA, primero es necesario remover la covariable de la cual queremos controlar el efecto y luego indicamos nuestra vairable de interes. Para nuestro caso:
+
+```{r}
+res.ancova <- iris %>% anova_test(Sepal.Length ~ Sepal.Width + Species)
+get_anova_table(res.ancova)
+```
+
+### Post Hoc Analisis
+
+Para indentificar los grupos que son diferentes podemos recurrir a la comparacion multiple utilizando el factor de corrección de Bonferrani.
+
+```{r}
+# Comparacion por pares
+pwc <- iris %>% 
+  emmeans_test(
+    Sepal.Length ~ Species, covariate = Sepal.Width,
+    p.adjust.method = "bonferroni"
+    )
+pwc
+```
+Podemos obtener los promedio de cada grupo para analizar con mas detalle estas diferencias.
+
+```{r}
+get_emmeans(pwc)
+```
+#### El gráfico de ANCOVA
+
+Existen muchas formas de presentar estos resultados. Esta es solo una opcion.
+
+```{r}
+pwc <- pwc %>% add_xy_position(x = "Species", fun = "mean_se")
+ggline(get_emmeans(pwc), x = "Species", y = "emmean") +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2) + 
+  stat_pvalue_manual(pwc, hide.ns = TRUE, tip.length = FALSE) +
+  labs(
+    subtitle = get_test_label(res.ancova, detailed = TRUE),
+    caption = get_pwc_label(pwc)
+  )
+```
+
+### CONCLUSIÓN
+
+El modelo se adhiere a los supuestos de linearidad (1), carencia de valores atipicos (4) independencia (5) y homogenindad de pendientes (6), pero no cumple los supuestos de normalidad en los residuos (2) y homocedasticidad (3). Por lo tanto se debe ser cuidadoso al interpretar el modelo si es que se acepta. Escencialmente podemos mencionar que existen diferencias en el tamaño de los sépalos entre las especies, cuando se controla el efecto del ancho del sépalo.
+
+REFERENCIAS
+
+Amat Rodrigo, J. 2016. ANOVA análisis de varianza para comparar múltiples medias. https://rpubs.com/Joaquin_AR/219148
+
+Logan, M. 2010. Biostatistical Design and Analysis Using R: A Practical Guide.546 pp. DOI: 10.1002/9781444319620, ISBN: 9781405190084
+
+Logan, M. 2021. Single Factor Anova. https://www.flutterbys.com.au/stats/tut/tut7.4a.html
+
+Logan, M. 2021. Analysis of Covariance https://www.flutterbys.com.au/stats/tut/tut7.5a.html 
+
+Logan, M. 2021. Simple Linear Regression. https://www.flutterbys.com.au/stats/tut/tut7.2a.html
+
+Quinn, G., & Keough, M. 2002. Graphical exploration of data. In Experimental Design and Data Analysis for Biologists (pp. 58-71). Cambridge: Cambridge University Press. doi:10.1017/CBO9780511806384.005
+
+Quinn, G., & Keough, M. 2002. Correlation and regression. In Experimental Design and Data Analysis for Biologists (pp. 72-110). Cambridge: Cambridge University Press. doi:10.1017/CBO9780511806384.006
+
+Quinn, G., & Keough, M. 2002. Comparing groups or treatments – analysis of variance. In Experimental Design and Data Analysis for Biologists (pp. 173-207). Cambridge: Cambridge University Press. doi:10.1017/CBO9780511806384.009
+
+Quinn, G., & Keough, M. 2002. Analyses of covariance. In Experimental Design and Data Analysis for Biologists (pp. 339-358). Cambridge: Cambridge University Press. doi:10.1017/CBO9780511806384.013
+
+Whitlock M. C. Schluter D. 2009. The analysis of biological data. Greenwood Village, Colorado. Roberts and Company Publishers. 700p
+
