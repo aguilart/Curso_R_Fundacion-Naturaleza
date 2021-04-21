@@ -6,25 +6,25 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
-**IMPORTANTE** 
+>**IMPORTANTE** 
 Recuerda que antes de adjuntar las librerias debes instalar los paquetes estadisticos. Para ello utiliza el código:
 
-install.packages("dplyr")
-install.packages("DHARMa")
-install.packages("ggplot2")
-install.packages("multcompView")
-install.packages("lmtest")
-install.packages("ggrepel")
-install.packages("tidyverse")
-install.packages("ggpurb")
-install.packages("rstatix")
-install.packages("broom")
-install.packages("emmeans")
+*install.packages("dplyr")
+*install.packages("DHARMa")
+*install.packages("ggplot2")
+*install.packages("multcompView")
+*install.packages("lmtest")
+*install.packages("ggrepel")
+*install.packages("tidyverse")
+*install.packages("ggpurb")
+*install.packages("rstatix")
+*install.packages("broom")
+*install.packages("emmeans")
 
-es recomendable que corras el codigo anterior en la consola (ventana inferior izquierda).
+es recomendable que ejcutes el código anterior en la **consola** (ventana inferior izquierda).
 
 # LIBRERIAS
 ```{r}
@@ -41,19 +41,21 @@ library(rstatix)#para  ANCOVA
 library(broom)#para  ANCOVA
 library(emmeans)# Post hoc análisis
 ```
-#CONTENIDO
-## ANALISIS EXPLORATORIO DE DATOS
-## ANDEVA o ANOVA
-## REGRESION LINEAL SIMPLE
-## ANCOVA
 
-##ANALISIS EXPLORATORIO DE DATOS
+#CONTENIDO
+
+* ANALISIS EXPLORATORIO DE DATOS
+* ANDEVA O ANOVA
+* REGRESION LINEAL SIMPLE
+* ANCOVA
+
+## ANALISIS EXPLORATORIO DE DATOS
 
 ### EXPLORACIÓN DE DATOS
 
 En esta sesión aprenderemos como conducir análisis exploratorios en datos, particularmente para detectar patrones y posibles desviaciones de los supuestos necesarios para conducir pruebas estadísticas. Los datos pueden ser representados y resumidos de muchas formas en R. Como ya lo habrás notado en nuestra sesión previa, el uso de gráficos durante el análisis exploratorio es de gran utilidad para validar la distribution y posibles tendencias de nuestros datos. Además puede proveer indicios de como ajustar tus datos en caso de que no correspondan con los supuestos. Recuerda **NUNCA PASES POR ALTO LOS ANÁLISIS EXPLORATORIOS** esto puede salvarte mucho tiempo y evitar interpretaciones tendenciosas y no justificadas.
 
-#LOS DATOS
+#### LOS DATOS
 Para esta sesión vamos a utlizar la base de datos **"iris"** que se encuentra adjunta en r, por lo tanto no necesitas cargarla. Esta base de datos presenta 5 variables. 
 
 Definamos las variables:
@@ -63,11 +65,11 @@ Definamos las variables:
 **Petal.Width** El ancho de los pétalos en milímetros
 **Species** Las especies estudiadas
 
-![Iris_nc_mal_escrito_jajaja](images\Jornada 3\iris.png){width="600" height="1000"} 
+![Fuente: ICHI.PRO](images\Jornada 3\iris_flores.png){width="600" height="200"} 
 
 ### EL PRIMER ACERCAMIENTO
 
-Una forma fácil y sencilla de obtener informacion resumida de nuestras variables es la función glance:
+Una forma fácil y sencilla de obtener informacion resumida de nuestras variables es la función "glance":
 ```{r}
 glance(iris)
 #head(iris)
@@ -86,7 +88,7 @@ En este caso nos muestra el tipo de variable y algunos detalles sobre ellas.
 
 Otra forma de explorar nuestros datos consiste en detectar si hay valores incompletos o no reportados en nuestra base de datos. Para ello se utiliza la función is.na() que puede ser aplicada a toda la matriz o a una variable en particular
 ```{r}
-is.na(iris)
+head(is.na(iris))
 is.na(iris$Sepal.Length)
 ```
 
@@ -140,21 +142,13 @@ facet_wrap(~Species)
 histograma2
 ```
 
-```{r}
-histograma<-ggplot(data=iris, aes(Sepal.Length))+
-  geom_histogram()+ #Draw histogram with probabilities
-  xlab("Longitud del sepalo")+
-  ylab("Frecuencia")+
-stat_function(fun = dnorm, args = list(mean = mean(iris$Sepal.Length), sd = sd(iris$Sepal.Length)))
-histograma
-```
-
 #### Gráfico de Cajas y Bigotes
 ```{r}
 Cajas_y_bigotes<-ggplot(data=iris, aes(y=Sepal.Length))+
   geom_boxplot()
 Cajas_y_bigotes
 ```
+
 ¿Qué vemos en el gráfico?
   - Cuartiles (25, 50, 75 percentiles), 50% representa la media
   - Intervalo entre cuartiles es la differencia entre el percentil 75 y el percentil 25
@@ -164,7 +158,7 @@ Cajas_y_bigotes
   
   Aun no es claro...
   
-![Caja: FUENTE WIKIPEDIA](images\Jornada 3\Diagrama_de_caja.jpg){width="600" height="1000"} 
+![Caja: FUENTE WIKIPEDIA](images\Jornada 3\Diagrama_de_caja.jpg){width="300" height="400"} 
 Seria ahora interesante ver como se comportan estos datos entre las especies.
 ```{r}
 Cajas_y_bigotes2<-ggplot(data=iris, aes(y=Petal.Length, x=Species, fill=Species))+
