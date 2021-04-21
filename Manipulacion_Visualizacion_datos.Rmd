@@ -1,0 +1,827 @@
+---
+title: "Manipulacion_Visualizacion_datos"
+author: "Carlos"
+date: "18/04/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Paquetes a utilizar:
+```{r}
+library(tidyverse)
+library(vegan)
+```
+
+
+# Contenido:
+
+* Aprendiendo a leer y entender código en R
+* Entender datos desde R usando funciones base y del paquete dplyr
+* Visualizar datos usando el paquete ggplot
+* Manipular datos:
+ + Transformar de formatos largos y anchos
+ + Reducir o hacer cálculos usando funciones base y del paquete dplyr
+
+
+# Aprendieno a leer y entender codigo en R
+
+En la sesión anterior uds. vieron conceptos básicos en R y aprendieron a hacer "indexing". Hoy vemos como entender, visualizar y manipular datos antes de realizar análisis estadísticos. 
+
+
+R es muy versátil para manipular datos. Si uno empieza desde 0 parece muy extranho. Asi que antes de empezar vamos a ver aspectos básicos de como "leer" código en R.
+
+## Primero algunos principios básicos:
+
+* Un buen código es fácil de leer para una persona.
+* Para eso, mientras más corto el código mejor (es más eficiente y entendible)
+* Sin embargo lo importante es empenzar y con la práctica uno se vuelve mejor
+
+
+## Signos de puntuación en R (y algunas letras)
+
+* Los paréntesis `()` delimitan el inicio y el fin de un objeto o "cierran" los argumentos de una función. Por ejemplo, la funcion `rep` repite un valor o texto un número determinado de veces. El principio y fin de lo que quiero repetir y cuantas veces, lo especifico dentro de un paréntesis:
+
+```{r}
+rep("a",3)
+```
+
+
+* La `c` combina objetos o elmentos. Aquí combino los números 1, 2 , 3 y 4
+
+```{r}
+c(1,2,3,4)
+```
+
+
+* Como en cualquier idioma la coma `,` separa elementos. Por ejemplo si no separamos con `,` lo que escribimos arriba se entiende como un único número.
+
+```{r}
+c(1234)
+```
+
+*Las comillas `""` indican texto
+
+```{r}
+c("a","b")
+```
+
+inclusive si el texto es en realidad un número
+
+```{r}
+c("1","2","3","4")
+```
+
+* Los dos puntos se leen como "al" o "de un punto a otro". Por ejemplo para decir: "del 1 al 50" lo escribo como:
+
+```{r}
+c(1:50)
+```
+Esto es más corto que escribir indiviualmente cada número del 1 al 50.
+
+
+* El signo de igualdad `=` y el `<-` crean objetos que se guardan temporalment en nuestro "ambiente"
+
+```{r}
+numeros<-c(1,2,3,4)
+```
+
+Si queremos ver el contenido del objeto "numeros", solo es necesario escribir "numeros"
+
+```{r}
+numeros
+```
+
+* El punto y coma `;` no tiene significado. Algunas personas lo usan para entender el código.
+
+## Leyendo el código
+
+En general el código se lee de la misma forma que leemos una ecuación en simple algebra o arimética. Es decir de "dentro hacia afuera". Por ejemplo si uno encuentra este código para calcular la media de una combinación de números:
+
+```{r}
+mean(c(3,4,6,8,5))
+```
+
+Esto se lee en este orden:
+ 1. Combina los números 3,4,6,8,5 `c(3,4,6,8,5)`
+ 2. Calcula la media de esa combinación con `mean`
+
+A medida uno tiene práctica tiende a agrupar muchas cosas en este orden. Por ejemplo, la función `rep`  "repetir" se puede modificar con el argumento `each=`, si yo escribo esto:
+
+```{r}
+rep(rep(c(1:50),each=4),3)
+```
+
+se lee como:
+
+1. `c(1:50)` Combina los números del 1 al 50 
+2. `rep`  repite esos números, cada uno de ellos cuatro veces `each=4`
+3. `rep` repite este preceso tres veces
+
+Para algunas personas (como yo), ayuda a entender el separar el código anterior con enters:
+
+```{r}
+rep(
+  rep(
+    c(1:50),each=4),#combina los numeros del 1:50, y luego repitelos cada una 4 veces
+  3)#repite lo anterior 3 veces
+```
+
+El número de pares de paréntesis sirve para determinar cuantas funciones hay. En este caso hay tres pares de paréntesis: uno para `c()` y dos `rep()`
+
+# Entendiendo datos con R y el paguete "dplyr"
+
+Como biólogos, combinamos diferentes datos (e.g, características del suelo, tablas de abundancia de especies especies, relaciones filogenéticas entre especies) para responder varias preguntas (hay una correlación entre variables del suelo y la abundancia des especies? qué especie es la que es más afectada).
+
+
+Para responder preguntas tan diversas, es necesario primero entender en que formato estan los datos, y si es necesario, cambiar el formato en el que se guardaron, o reducir su tamaho (calculando medias, medianas, etc) o combinando otro tipo de información antes de hacer el análisis estadístico.
+
+R tiene la ventaja que permite hacer todos esos cambios! En esta jornada haremos algunas de las manipulaciones de datos más comunes en bases de datos en biología.
+
+Antes de seguir, instalemos y llamemos los siguientes paquetes:
+
+```{r,eval=FALSE}
+#Asi los instalamos
+install.packages("tidyverse")
+install.packages("vegan")
+```
+
+
+```{r}
+#Asi los llamamos:
+library(tidyverse)
+library(vegan)
+```
+
+En esta jornada vamos a utilizar tablas de datos que ya vienen incluidos en R o en los dos paquetes anteriores. Para ver esos datos, pueden usar la funciòn `data`
+
+```{r,eval=F}
+data()
+```
+
+
+
+## Funciones básicas
+
+Lo más probable que los datos fueron digitalizados manualmente en excel y el formato que se uso dependerá de quien ingreso los datos. Otras veces los datos provienen de otro programa de forma automática (dataloggers, sequencias de ADN) y pueden ser muy grandes (cientos, miles de datos se produjeron).
+
+En ambos casos, hay ciertas funciones básicas que ayudan a entender:
+
+`class`
+Ver la "clase" de objeto en el que estan guardado los datos
+
+```{r}
+class(iris)
+```
+
+Dataframe es uno de las clases de objeto más comunes y útiles. Datos típicos ingresados manualmente en excel son "data.frames". 
+
+**Un data.frame es una tabla de filas y columnas que contiene números y texto, y típicamente la primera fila no son datos sino los nombres de las columnas.**
+
+Tambien podemos ver la clase de objeto que es cada columna:
+
+```{r}
+class(iris$Sepal.Length)
+```
+
+
+```{r}
+class(iris$Species)
+```
+
+
+`head`
+
+Ver los datos de las primeras diez filas
+```{r}
+head(iris)
+```
+
+`names`
+
+ver el nombre de cada columna
+
+```{r}
+names(iris)
+```
+
+`$`
+
+El signo de dolar es peculiar, porque permite seleccionar directamente una columna especifica
+
+```{r}
+iris$Species
+```
+
+también permite crear una nueva columna
+
+```{r}
+iris$nuevo<-c(1:150)
+head(iris)
+```
+y también borrar la columna usando `<-NULL`
+
+```{r}
+iris$nuevo<-NULL
+head(iris)
+```
+
+
+
+`unique`
+
+ver los datos "únicos" contendios en una columna
+
+```{r}
+unique(iris$Species)
+```
+
+
+### cuántos datos hay? "length", "dim"
+
+`dim`
+
+viendo las dimensiones de mi tabla (cuantas columnas y filas)
+
+```{r}
+dim(iris)
+```
+
+`length`
+viendo el "largo" (es decir el número de elemetos en un objeto)
+
+```{r}
+length(iris$Species)
+```
+
+
+### Visualizando los datos
+
+No hay mejor forma de entender los datos que transladándolos en una gráfico. Esto permite no solo entender el formato, pero también que tipo de relaciones hay entre variables e inclusive determinar el tipo de análisis que los datos necesitan.
+
+
+Por ejemplo, usando los datos en la tabla  `CO2`
+
+```{r}
+head(CO2)
+```
+
+Como esta tabla viene incluida en R, podemos saber un poco de la historia del experimento que los origino:
+
+```{r,eval=FALSE}
+?CO2
+```
+
+
+vemos que hay dos variables continuas (una de respuesta y otra explicativa) y varias variables categóricas que se manipularon. De acuerdo a la información biológica, el objetivo es saber como cambia la relación entre el uptake de CO2 al incrementar la concentración de CO2 y como esta relación varia entre tratamientos y tipos de plantas. 
+
+Como son dos variables continuas en las que algunas muestras vienen de distintos tratamientos, una forma de ver estos datos es con un scatterplot con colores que distingan los diferentes tratamientos
+
+Hay muchas formas de hacer un scatterplot. La función más básica y versátil es "plot". Por ejemplo:
+
+
+```{r}
+plot(CO2$conc,CO2$uptake,#indicar la variable "x" y la "y"
+     col=CO2$Treatment,# indicar el tratamiento como un color (col)
+     pch=19, #indicar el tipo de punto (pueden ser un punto, un triangulo, un cuadrado)
+     xlab="Concentration",ylab="Uptake") # darle nombre a las variables
+
+legend("bottomright",#crear una legenda que este situada el fondo a la izquierda
+       legend = unique(CO2$Treatment),#indicar el texto estara incluido en la leyenda
+       pch=19,# nuevamente indicar que tipo de punto se usara
+       col = unique(CO2$Treatment))# indicar el color del punto a la par del texto
+```
+
+Hacer un plot de esta forma es como pintar un cuadro desde cero (es una canva en blanco):
+
+* Tu seleccionas todos los colores o formas que los datos tienen
+* Tu seleccionas todos los colores que no están relacionados a los datos, pero que son "estéticos":
+    * Colores de fondo
+    * Tipos de letra
+    * Dimensiones de los márgenes
+
+A menos que uno tenga cierta afinidad/conocimiento sobre disenho gráfico, las decisiones estéticas son dificiles de tomar. Sin embargo, un gráfico amigable al ojo tiene más impacto que uno con la misma información pero con decisiones "cuestionables" sobre el disehno.
+
+En la actualidad, "ggplot" (que forma parte del paquete "tidyverse"), ofrece la posibilidad de usar formatos predeterminados que lucen mejor.
+
+**Antes de seguir hay un pequehno detalle sobre las funciones de "tydiverse"**.
+Tidyverse ofrece la posibilidad de escribir código de una forma un tanto diferente en R (en algún lugar leí que: "si R es un lenguaje, tidyverse es un dialecto"). Una de las particularidades es el "pipe" operator ` %>% `. Esta combinación de teclas "abren" un dataframe para su uso posterior. Nota: Con la combinacion de teclas `control` `shift` `m` se puede escribir más rápido
+
+
+Volviendo a nuestro ejemplo,`ggplot` permite hacer gráficos con una base más estética y además es más fácil de leer el código. Por ejemplo, para el caso anterior:
+
+```{r}
+CO2 %>% #Abro los datos contenidos en el data.frame CO2
+  ggplot()+ #Llamo a la función
+  aes(x=conc,y=uptake,col=Treatment) + #Determino los "aesthetic" parametros: x, y axis y el color
+  geom_point() #Selecciono el tipo de plot que quiero (en este caso scatter plot)
+```
+
+Es el mismo gráfico que el anterior pero luce de mejor forma. Además tuve que escribir menos texto para hacer el gráfico. 
+
+Hasta el momento el gráfico tiene información sobre las dos variables continuas de interés y el tratamiento. Pero todavía no incluye información sobre el el origen de las plantas. Esto lo podemos incluir en un solo gráfico con `facet_grid`
+
+
+```{r}
+CO2 %>% #Selecciono los datos
+  ggplot()+ #Laamo a la función
+  aes(x=conc,y=uptake,col=Treatment) + #Determino los "aesthetic" parametros: x, y axis y el color
+  geom_point() +#Selecciono el tipo de plot que quiero (en este caso scatter plot)
+  labs(x="Concentracion",y="Uptake")+
+  facet_grid(.~Type) #Incluyo el origen de las plantas
+```
+
+
+Por último podemos hacer una "regresion" para visualizar la relación entre variables. Con ggplot asignar esa información es fácil
+
+Nota: esta regresión es solo preliminar, es para exploración. Es necesario hacer un test real para determinar la magnitud de la relación y la probabilidad que no sea un "falso positivo"
+
+
+```{r}
+CO2 %>% #Selecciono los datos
+  ggplot()+ #Laamo a la función
+  aes(x=conc,y=uptake,col=Treatment) + #Determino los "aesthetic" parametros: x, y axis y el color
+  geom_point() +#Selecciono el tipo de plot que quiero (en este caso scatter plot)
+  geom_smooth()+ # Incluyo un linea con valores intermedios o esperados
+  labs(x="Concentracion",y="Uptake")+
+  facet_grid(.~Type) #Incluyo el origen de las plantas
+```
+
+
+
+Podemos hacer más cambios
+```{r}
+CO2 %>% #Selecciono los datos
+  ggplot()+ #Laamo a la función
+  aes(x=conc,y=uptake,col=Treatment) + #Determino los "aesthetic" parametros: x, y axis y el color
+  geom_point() +#Selecciono el tipo de plot que quiero (en este caso scatter plot)
+  geom_smooth()+ # Incluyo un linea con valores intermedios o esperados
+  labs(x="Concentracion",y="Uptake")+
+  facet_grid(.~Type)+ #Incluyo el origen de las plantas
+  theme(legend.position = "bottom")
+```
+O cambiar el "tema" del gráfico. Por ejemplo, se puede cambiar el tipo de fondo (de gris a azul)
+
+```{r}
+CO2 %>% #Selecciono los datos
+  ggplot()+ #Laamo a la función
+  aes(x=conc,y=uptake,col=Treatment) + #Determino los "aesthetic" parametros: x, y axis y el color
+  geom_point() +#Selecciono el tipo de plot que quiero (en este caso scatter plot)
+  geom_smooth()+ # Incluyo un linea con valores intermedios o esperados
+  labs(x="Concentracion",y="Uptake")+
+  facet_grid(.~Type)+ #Incluyo el origen de las plantas
+  theme(legend.position = "bottom",
+        panel.background = element_rect(fill="lightblue"))
+```
+
+
+
+
+
+O podemos escoger otros templates predeterminados
+
+```{r}
+CO2 %>% #Selecciono los datos
+  ggplot()+ #Laamo a la función
+  aes(x=conc,y=uptake,col=Treatment) + #Determino los "aesthetic" parametros: x, y axis y el color
+  geom_point() +#Selecciono el tipo de plot que quiero (en este caso scatter plot)
+  geom_smooth()+ # Incluyo un linea con valores intermedios o esperados
+  labs(x="Concentracion",y="Uptake")+
+  facet_grid(.~Type)+ #Incluyo el origen de las plantas
+  theme_minimal()
+```
+
+El paquete "ggthemes" ofrece más templates:
+```{r,eval=F}
+install.packages("ggthemes")
+```
+
+
+```{r,}
+library(ggthemes)
+
+CO2 %>% #Selecciono los datos
+  ggplot()+ #Laamo a la función
+  aes(x=conc,y=uptake,col=Treatment) + #Determino los "aesthetic" parametros: x, y axis y el color
+  geom_point() +#Selecciono el tipo de plot que quiero (en este caso scatter plot)
+  geom_smooth()+ # Incluyo un linea con valores intermedios o esperados
+  labs(x="Concentracion",y="Uptake")+
+  facet_grid(.~Type)+ #Incluyo el origen de las plantas
+  theme_economist()
+```
+
+Las opciones son muchas y permiten tener plots de buena calidad para publicación
+
+
+#  Cambiando formatos
+
+## Cambiando formato de "ancho" a "largo" y viceversa
+
+* Formato "largo": Este es el formato necesario para hacer un Análasis de varianza (ANOVA) o una regresión (como verán en la Jornada 3). Los datos están en un formato en el que las muestras son las filas y todas las variables son columnas (tanto variables de explicación como de respuesta). Este es el caso de nuestro ejemplo anterior
+
+```{r}
+head(CO2)
+```
+
+
+* Formato "ancho". En otros casos queremos que cada muestra es una única fila y TODAS las variables esta en una columna diferente. Un ejemplo clásico son las tablas de abundancias de especies o las tablas con datos ambientales por cada muestra. Este formato es el necesario para hacer varios tipos de análisis multivariados (jornada 4). 
+
+
+Por ejemplo:
+
+```{r }
+data("varechem")
+head(varechem)
+
+```
+
+Es muy común que para un cierto tipo de análisis o para visualizar los datos es necesario cambiar entre ambos formatos. Para ello hay dos opciones: 
+
+* usando `stack` y `unstack` de los paquetes base de R
+* usando `pivot_longer` y `pivot_wider` del paquete dplry (incluido en tidyverse)
+
+#### Ejemplo: transformando de ancho a largo
+
+Queremos visualizar como los datos la variación del tamanho de los sepalos y petalos de las 3 especies includias en la tabla `iris`. En este caso, la variable que queremos en el eje x es la especie de las plantas y en el eje "y" ya sea el ancho o largo de los sépalos o pétalos. 
+
+Esta visualización se puede hacer via un boxplot o violin plot con los datos sobrepuestos:
+```{r }
+
+iris %>% 
+  ggplot()+
+  aes(x=Species,y=Sepal.Length,fill=Species)+
+  geom_violin()+
+  geom_jitter()
+
+```
+
+
+
+
+
+Pero que pasa si quiero visualizar todos los órganso florales en un mismo gráfico para darme una idea general de los patrones que hay. Si los datos estuvieran en formato largo, esto se puede hacer usando `facet` (asi como en el caso de la tabla de CO2).
+
+Para tranformar de ancho a largo usamos `pivot_longer`. Veamos que pasa:
+
+```{r}
+iris %>% #Selecciono los datos
+  pivot_longer(cols = c("Sepal.Length","Sepal.Width","Petal.Length","Petal.Width"),
+               names_to = "Organo florar",
+               values_to = "Centimetros")
+```
+comparando con los datos originales:
+
+```{r}
+iris
+```
+En lugar de tener 150 filas y 5 columnas, pasomos a tener 600 filas y sólo 3 columnas (el formato es más largo). Con este nuevo formato podemos hacer el gráfico anterior con todas las plantas y organos florales en mismo gráfico
+
+```{r}
+iris %>% #Selecciono los datos
+pivot_longer(cols = c("Sepal.Length","Sepal.Width","Petal.Length","Petal.Width"),
+               names_to = "Organo_floral",
+               values_to = "Centimetros") %>% 
+  ggplot()+
+  aes(x=Species,y=Centimetros, fill=Species)+
+  geom_violin()+
+  geom_jitter()+
+  facet_grid(.~ Organo_floral)
+
+```
+
+Cambiando un poco el aspecto
+
+```{r}
+iris %>% #Selecciono los datos
+pivot_longer(cols = c("Sepal.Length","Sepal.Width","Petal.Length","Petal.Width"),
+               names_to = "Organo_floral",
+               values_to = "Centimetros") %>% 
+  ggplot()+
+  aes(x=Species,y=Centimetros, fill=Species)+
+  geom_violin()+
+  geom_jitter()+
+  facet_grid(.~ Organo_floral)+
+  theme(axis.text.x = element_text(angle=45,size = 15,hjust = 1),
+        axis.title.x = element_blank())
+```
+
+#### Ejemplo: transformando de largo a ancho
+
+Esto se hace con pivot_wider. Usando el ejemplo que esta en la ayuda `?pivot_wider`
+
+```{r}
+fish_encounters %>%
+  pivot_wider(names_from = station, values_from = seen)
+# Fill in missing values
+fish_encounters %>%
+  pivot_wider(names_from = station, values_from = seen, values_fill = 0)
+```
+
+
+Este caso es más frecuente como requisito para analizar datos, no para visualizarlos. Por ejemplo para hacer un PCA (jornada cuatro).
+
+Como ejercicio, guardemos los datos de `iris` en formato largo
+
+```{r}
+iris_largo<-
+iris %>% #Selecciono los datos
+pivot_longer(cols = c("Sepal.Length","Sepal.Width","Petal.Length","Petal.Width"),
+               names_to = "Organo_floral",
+               values_to = "Centimetros")
+```
+
+
+ahora transformemolos a formato ancho, es decir a su forma inicial:
+
+```{r}
+iris_largo %>% 
+  pivot_wider(names_from = Organo_floral,values_from = Centimetros, id_cols = Species)
+```
+
+Nos da un error. La razón: es necesario tener un id único para cada planta. Ya que cada planta tiene 4 variables ("Sepal.Length" "Sepal.Width"  "Petal.Length" "Petal.Width"), esto quiere decir que las filas de la 1 a la 4 corresponde a los valores de una planta individual, luego de la 5 a la 8 corresponden a la siguiente y asi sucesivamente: 
+
+```{r}
+head(iris_largo)
+```
+
+
+Una forma de asignar esta información en R es usando funciones básicas como `rep` y `paste` ("repetir" y "pegar"):
+
+```{r}
+iris_largo$ID<-rep(rep(c(1:50),each=4),3)
+iris_largo$ID<-paste(iris_largo$Species,iris_largo$ID,sep="_")
+```
+
+Veamos como luce:
+
+```{r}
+iris_largo
+```
+
+
+
+Ahora que tenemos un id único, vamos a transformar al formato ancho:
+
+```{r}
+iris_largo %>% 
+  pivot_wider(names_from = Organo_floral,values_from = Centimetros, id_cols = ID)
+```
+
+
+# Uniendo tablas
+ 
+Es muy frecuente unir tablas con diferentes datos pero que provienen de las mismas muestras. Por ejemlo unos datos fueron medidos con diferentes instrumentos y cada resultado se guardo por separado.  Como ejemplo uniremos las tablas `dune` y `dune.env` de vegan: ambas proveen información de la mismas muestras pero `dune.env` tiene datos abioticos y experimentales mientras que `dune` abundancia de plantas.
+
+```{r}
+data("dune")
+data("dune.env")
+```
+
+ 
+```{r}
+head(dune.env)
+```
+ 
+```{r}
+head(dune)
+```
+
+ 
+ Hay muchas formas de unir tablas:
+ 
+`cbind` "combinar columnas"
+ 
+Esta función sirve cuando ambas tablas tienen exactamente el mismo número de filas y el orden de las filas es el mismo! Por suerte en `dune` y `dune.env` este es el caso (vean los rownames de la tabla)
+
+```{r}
+cbind(dune,dune.env)
+
+```
+
+Podemos también seleccionar ciertas columnas a unir. Por ejemplo si queremos solo unir la abundancia de las primeras tres especies con el ancho del horizonte del suelo y la humedad del suelo.
+
+```{r}
+cbind(dune[,c("Achimill","Agrostol","Airaprae")],
+      dune.env[,c("A1","Moisture")])
+```
+
+`cbind` no es una buena idea cuando:
+
+* las tablas no tengan las mismas dimensiones
+* las muestras en la filas no esten en el mismo orden
+* solo hay datos para unas muestras y no de todas.
+
+Una opción muy intuitiva es usando las funciones `join` (unir) de `dplyr`
+
+Por ejemplo, veamos las tablas:
+```{r}
+band_members
+```
+
+
+y 
+
+```{r}
+band_instruments
+```
+
+Si bien ambas tablas tienen las mismas dimensiones, no estan en el mismo orden: si usaramos `cbind` a Mick le agregaríamos que toca guitarra pero en realidad es John quien toca guitarra.
+
+Usando `left_join`
+
+```{r}
+left_join(band_members,band_instruments,by="name")
+```
+
+o `right_join`
+
+```{r}
+right_join(band_members,band_instruments,by="name")
+```
+
+
+Las funciones `join` funcionarán siempre y cuando exista una columna en común (en este caso `name`) con los ID únicos de cada muestra, no importando el orden en que las muestras se ingresaron. 
+
+
+# Simplificando tablas: a traves de medidas de centralidad o dispersion
+
+En muchas ocasiones necesitamos simplificar las tablas antes de realizar nuestros análisis (quizás tenemos 3 sub-replicas y queremos tener un único valor por réplica). Esa simplifiación se puede hacer:
+
+* Calculando medias, medianas, variazas, etc
+* Contando valores
+
+
+Por ejemplo si necesitramos calcular la media del pétalos y sépalos en `iris`
+```{r , echo=FALSE}
+
+mean(iris$Sepal.Length)
+
+```
+
+```{r}
+mean(iris$Petal.Length)
+```
+
+
+Escribir cada media para cada columna es tedioso. Para calcular varias medias a las vez podemos utilizar las versátiles e increiblemente útiles funciones de la familia `apply` ("aplicar).
+
+En esta familia de funciones, todas terminan con el sufijo "-apply", pero las primeras letras pueder cambiar: `lapply` `sapply` `tapply` etc. En todos casos esta función "aplica" otra función a objetos por separado. El significado de esas letras y cuando usar una función u otras es cuestión de práctica y necesidad. Aquí menciono algunas que más uso.
+
+Por ejemplo si queremos calcular las medias de todas las columnas con organos florales podemos usar "list apply" `lapply`
+
+```{r}
+lapply(iris[,c("Sepal.Length","Sepal.Width","Petal.Length","Petal.Width")],mean)
+```
+
+si quisieramos combinar todos los datos juntos, podemos usar "simplify apply" `sapply`
+
+```{r}
+sapply(iris[,c("Sepal.Length","Sepal.Width","Petal.Length","Petal.Width")],mean)
+```
+
+Pero la media de cada columna en `iris` no es exactamente lo que queremos. En realidad tenemos tres especies por separado
+
+```{r}
+unique(iris$Species)
+```
+
+Lo ideal es calcular una media por cada planta, lo que se puede hacer con `tapply`
+
+```{r}
+tapply(iris$Sepal.Length,iris$Species,mean)
+```
+
+
+Otra opción es usar la función `aggregate` que tiene la ventaja que guarda los datos automáticamente en otra tabla
+
+```{r}
+aggregate(Sepal.Length~Species,mean,data=iris)
+```
+
+o calcularlos para todas las columnas
+
+```{r}
+aggregate(. ~ Species, data = iris, mean)
+```
+
+**Utilizando `dplyr`**
+
+
+El paquete "dplyr" incluye las funciones `group_by` y `summarise_at` para hacer este tipo de trabajo. En la mayoría de los casos es gusto personal cual función usar. Yo uso una combinación de ambos tipos de funciones dependiendo de cada caso.
+
+```{r}
+iris %>% 
+  group_by(Species) %>% 
+  summarise_at(c("Sepal.Length","Sepal.Width","Petal.Length","Petal.Width"),mean)
+```
+
+Tiene la ventaja que puedo hacer un grafico con `ggplot` directamente
+
+```{r}
+iris %>% 
+  group_by(Species) %>% 
+  summarise_at(c("Sepal.Length","Sepal.Width","Petal.Length","Petal.Width"),mean) %>% 
+  ggplot()+
+  aes(x=Species,y=Sepal.Length)+
+  geom_bar(stat="identity")
+```
+
+Otras funciones útiles de `dplyr` son `count` y `tally`. Estas functiones permiten contar el número de datos que existen.
+
+```{r}
+iris %>% 
+  group_by(Species) %>%
+  tally()
+```
+
+
+
+O podemos calcular número de muestras por planta, tipo y tratamiento en `CO2`
+
+```{r}
+CO2 %>% 
+  group_by(Plant,Type,Treatment) %>% 
+  count()
+```
+
+### Ejemplo final
+
+Para terminar podemos poner todo lo que hemos aprendido en un ejemplo más complejo:
+
+Los datos de `dune` estan a nivel de especie. Es decir tenemos el número de individuos por cada especie en cada muestra. Pero que tal si estamos interesado en saber el número de individuos por cada familia de plantas (no de especies). 
+
+Lo primero es obtener la taxonomía de las especies. En nuestro caso esa información esta en `dune.taxon`
+
+```{r}
+data("dune.taxon")
+```
+
+
+
+```{r}
+dune.taxon
+```
+Y ahora como combinamos esa información con `dune` para calcular el número de especies por familia? Mi solución es esta:
+
+1. Cambiemos el formato de `dune` de ancho a largo
+```{r}
+dune %>% 
+pivot_longer(cols = names(dune),values_to = "abundancia",names_to = "species")
+```
+2. Unamos los datos de taxonomía a este nuevo formato
+
+```{r,eval=FALSE}
+dune %>% 
+pivot_longer(cols = names(dune),values_to = "abundancia",names_to = "species")
+  left_join(dune.taxon)
+  
+```
+Nos da un error porque no ninguna columna en común entre ambas tablas:
+
+```{r}
+names(dune %>% 
+pivot_longer(cols = names(dune),values_to = "abundancia",names_to = "species"))
+```
+
+```{r}
+names(dune.taxon)
+```
+
+El problema es que la taxonomía no tiene una columna con el nombre "species"
+
+Pero si vemos la tabla:
+
+```{r}
+head(dune.taxon)
+```
+
+los nombres de las especies estan ahí, pero no en una columna. Resulta que en este caso esa información esta guardada como "nombres de filas"
+
+```{r}
+rownames(dune.taxon)
+```
+
+Entonces una solución es guardar esa información en una columna:
+
+```{r}
+dune.taxon$species<-rownames(dune.taxon)
+```
+
+y ahora podemos unir:
+
+```{r}
+dune %>% 
+pivot_longer(cols = names(dune),values_to = "abundancia",names_to = "species") %>% 
+  left_join(dune.taxon)
+```
+3. Y ahora podemos sumar con la función `sum` las especies que hay por familia
+
+```{r}
+dune %>% 
+pivot_longer(cols = names(dune),values_to = "abundancia",names_to = "species") %>% 
+  left_join(dune.taxon) %>% 
+  group_by(Family) %>% 
+  summarize_at(c("abundancia"),sum)
+```
