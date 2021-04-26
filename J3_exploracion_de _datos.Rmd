@@ -69,7 +69,7 @@ Para ello sigue los siguientes pasos
 - Este metodo puede ser abreviado utilizando el entorno "Environment"
 
 ```{r}
-metodo1<-datos
+#metodo1<-datos
 ```
 
 Método 2. Importarlo por medio de la funcion "seleccionar archivo"
@@ -795,7 +795,7 @@ ggline(get_emmeans(pwc), x = "Species", y = "emmean") +
 
 ### CONCLUSIÓN
 
-El modelo se adhiere a los supuestos de linearidad (1), carencia de valores atipicos (4) independencia (5) y homogenindad de pendientes (6), pero no cumple los supuestos de normalidad en los residuos (2) y homocedasticidad (3). Por lo tanto se debe ser cuidadoso al interpretar el modelo si es que se acepta. Escencialmente podemos mencionar que existen diferencias en el tamaño de los sépalos entre las especies, cuando se controla el efecto del ancho del sépalo.
+El modelo se adhiere a los supuestos de linearidad (1), carencia de valores atipicos (4) independencia (5) y homogenindad de pendientes (6), pero no cumple lo#s supuestos de normalidad en los residuos (2) y homocedasticidad (3). Por lo tanto se debe ser cuidadoso al interpretar el modelo si es que se acepta. Escencialmente podemos mencionar que existen diferencias en el tamaño de los sépalos entre las especies, cuando se controla el efecto del ancho del sépalo.
 
 REFERENCIAS
 
