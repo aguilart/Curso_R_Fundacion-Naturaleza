@@ -23,6 +23,7 @@ Recuerda que antes de adjuntar las librerias debes instalar los paquetes estadis
 *install.packages("rstatix")
 *install.packages("broom")
 *install.packages("emmeans")
+*install.packages("extrafont")
 
 es recomendable que ejcutes el código anterior en la **consola** (ventana inferior izquierda).
 
@@ -40,6 +41,64 @@ library(ggpubr)#para ANCOVA
 library(rstatix)#para  ANCOVA
 library(broom)#para  ANCOVA
 library(emmeans)# Post hoc análisis
+library(extrafont)
+```
+
+#RECAPITULACION
+
+Importación de datos a R.
+
+Existen varios métodos. Es importante tener en cuenta ciertos lineamientos generales:
+
+*1. Cuál tipo de archivo quiero importar.
+*2. Cuál método es el más apropiado.
+*3. Cuál es mi finalidad con el análisis de los datos.
+
+Metodo 1. Importarlos usando la interfaz gráfica del usuario.
+
+Para ello sigue los siguientes pasos
+
+- Presiona click en "file" 
+- Selcciona "Import data set"
+- seleciona el tipo de archivo, en este ejemplo " From excel"
+- selecciona "browse" en la esquina superior derecha para encontrar el archivo
+- Verifica que las variables han sido identificadas correctamente
+- Presiona "import" en la esquina inferioir derecha
+- !listo
+
+- Este metodo puede ser abreviado utilizando el entorno "Environment"
+
+```{r}
+metodo1<-datos
+```
+
+Método 2. Importarlo por medio de la funcion "seleccionar archivo"
+
+- Define y asigna el nombre a tu base de datos "método2"
+- selecciona la funcion read.csv
+- ejecuta la función "file.choose"
+- la flecha verde superior derecha en el "chunk"
+- Sigue la interfaz gráfica del usuario para encontrar tu archivo. Recuerda que en este caso debe ser un .csv
+- Listo.
+
+```{r}
+metodo2 <- read.csv(file.choose())
+```
+
+Método 3. Importarlo por medio de comando (Recomendado)
+
+- Define y asigna el nombre a tu base de datos
+- selecciona la funcion read.csv
+- Escribe la ruta del archivo de interes, recuerda incorporar las comillas "", "C:\Users\SGM\Desktop"
+- Recuerda cambiar la direccion de la pleca hacia la derecha "/", "C:/Users/SGM/Desktop"
+- Incluye junto con el nombre del archivo, la extension, en este caso .csv
+- Verifica los espacios, y si en los nombres de la ruta hay espacios mantenlos, de lo contrario eliminalos.
+- Presiona la flecha verde superior derecha en el "chunk"
+- Listo.
+
+```{r}
+metodo3<-read.csv("C:/Users/SGM/Desktop/datos.csv")
+metodo3
 ```
 
 #CONTENIDO
@@ -124,13 +183,15 @@ En técnicas mas avanzadas (no cubiertas en este curso) hay métodos que pueden 
 
 #### Histograma
 
-El histograma de frecuencias es una alterniva excelente para observar la distribucion de variables continuas. Presenta una idea rapida de si los datos se ajustan a una distribucion normal y la presencia de valores extremos. Construyamos un histograma para nuestras variables numericas continuas.
+El histograma de frecuencias es una alterniva excelente para observar la distribucion de variables continuas. Presenta una idea rapida de si los datos se ajustan a una distribucion normal y la presencia de valores extremos. Construyamos un histograma para nuestras variables númericas continuas.
+
 ```{r}
-histograma<-ggplot(data=iris, aes(Petal.Length))+
+#png("figura 1", units="in", width=10, height=7, res=300)
+histograma1<-ggplot(data=iris, aes(Petal.Length))+
   geom_histogram()+ #Draw histogram with probabilities
   xlab("Longitud del Petalo(mm)")+
   ylab("Frecuencia")
-histograma
+histograma1
 ```
 
 ```{r}
@@ -145,9 +206,21 @@ histograma2
 #### Gráfico de Cajas y Bigotes
 ```{r}
 Cajas_y_bigotes<-ggplot(data=iris, aes(y=Sepal.Length))+
-  geom_boxplot()
+  geom_boxplot()+
+ 
+ 
 Cajas_y_bigotes
 ```
+
+```{r}
+# ejemplovio<-ggplot(data=iris, aes(x=Species, y=Sepal.Length, fill=Species))+
+#   geom_violin()+
+#    coord_flip()+
+#   stat_summary(fun.y=median, geom="point", size=2, color="black")
+# 
+# ejemplovio
+```
+
 
 ¿Qué vemos en el gráfico?
   - Cuartiles (25, 50, 75 percentiles), 50% representa la media
