@@ -19,7 +19,7 @@ Recuerda que antes de adjuntar las librerias debes instalar los paquetes estadis
 *install.packages("lmtest")
 *install.packages("ggrepel")
 *install.packages("tidyverse")
-*install.packages("ggpurb")
+*install.packages("ggpubr")
 *install.packages("rstatix")
 *install.packages("broom")
 *install.packages("emmeans")
@@ -59,10 +59,10 @@ En esta sesión aprenderemos como conducir análisis exploratorios en datos, par
 Para esta sesión vamos a utlizar la base de datos **"iris"** que se encuentra adjunta en r, por lo tanto no necesitas cargarla. Esta base de datos presenta 5 variables. 
 
 Definamos las variables:
-**Sepal.Length** La longitud de los sépalos en milímetros
-**Sepal.Width** El ancho de los los sépalos en milímetros
-**Petal.Length** La longitud de los pétalos en milímetros
-**Petal.Width** El ancho de los pétalos en milímetros
+**Sepal.Length** La longitud de los sépalos en centímetros
+**Sepal.Width** El ancho de los los sépalos en centímetros
+**Petal.Length** La longitud de los pétalos en centímetros
+**Petal.Width** El ancho de los pétalos en centímetros
 **Species** Las especies estudiadas
 
 ![Fuente: ICHI.PRO](images\Jornada 3\iris_flores.png){width="600" height="200"} 
