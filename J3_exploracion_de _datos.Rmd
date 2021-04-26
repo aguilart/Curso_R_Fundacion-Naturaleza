@@ -130,12 +130,12 @@ Definamos las variables:
 
 Una forma fácil y sencilla de obtener informacion resumida de nuestras variables es la función "glance":
 ```{r}
-glance(iris)
+#glance(iris)
 #head(iris)
 #tail(iris)
 #glimpse(iris)
 #View(iris)# no recomendada para procesos de replicabilidad porque tiene conflictos con Knitting
-#summary(iris)
+summary(iris)
 ```
 Es importante notar que para los factores y variables lógicas, la función summary nos retorna el número de observaciones en cada nivel. Para variables numéricas (ambos enteros y con decimales), se retorna el mínimo, máximo, primer y tercer quartil la media y la mediana. Aunque es un forma fácil la desventaja es que no muestra los datos por grupo, en este caso especie. Además, en muchos casos entender nuestros datos basado estos números nos llevaría un poco de tiempo. 
 
@@ -206,19 +206,19 @@ histograma2
 #### Gráfico de Cajas y Bigotes
 ```{r}
 Cajas_y_bigotes<-ggplot(data=iris, aes(y=Sepal.Length))+
-  geom_boxplot()+
+  geom_boxplot()
  
  
 Cajas_y_bigotes
 ```
 
 ```{r}
-# ejemplovio<-ggplot(data=iris, aes(x=Species, y=Sepal.Length, fill=Species))+
-#   geom_violin()+
-#    coord_flip()+
-#   stat_summary(fun.y=median, geom="point", size=2, color="black")
-# 
-# ejemplovio
+ # # ejemplovio<-ggplot(data=iris, aes(x=Species, y=Sepal.Length, fill=Species))+
+ #   geom_violin()+
+ #    coord_flip()+
+ #   stat_summary(fun.y=median, geom="point", size=2, color="black")
+ # 
+ # ejemplovio
 ```
 
 
@@ -258,7 +258,7 @@ En el caso del analisis de varianza normalemnte se presenta una variable numéri
 
 #### 1.2 Gráfico de cajas
 
-El gráfico de cajas puede ayudarnos aobservar la distribucion de las variables y su normalidad. Para este caso
+El gráfico de cajas puede ayudarnos aobservar la distribución de las variables y su normalidad. Para este caso
 ```{r}
 ggplot(iris, aes(y=Sepal.Length, x=Species, fill= Species))+
   geom_boxplot()+
@@ -660,11 +660,11 @@ El modelo se adhiere a los supuestos de linearidad (1), carencia de valores atip
 
 #### PARA ANALIZAR.....
 
-Cuando los modelos no cumplen los supuestos, se pueden realizar algunos pasos para mejorar este proceso. Entre ellos: transformar las variables, incluir mas variables explicativas o ajustar la variable respuesta a otro tipo de distribucion. Estos aspectos no seran explorados en este curso, pero hay bastante informacion sobre ello disponible en linea. Tambien, en cursos mas avanzados de la Fundacion Naturaleza El Salvador.
+Cuando los modelos no cumplen los supuestos, se pueden realizar algunos pasos para mejorar este proceso. Entre ellos: transformar las variables, incluir mas variables explicativas o ajustar la variable respuesta a otro tipo de distribución. Estos aspectos no seran explorados en este curso, pero hay bastante informacion sobre ello disponible en linea. Tambien, en cursos mas avanzados de la Fundacion Naturaleza El Salvador.
 
 ### ANALISIS DE COVARIANZA (ANCOVA)
 
-Hasta ahora hemos visto como analizar variables respuesta, en relacion a variables explicativas categoricas (llamadas tratamientos o factores) en el Analisis de varianza  y hemos ejecutado el mismo proceso para analisis que involucran variables explicativas continuas, como en el caso de la regresión lineal simple. 
+Hasta ahora hemos visto como analizar variables respuesta, en relación a variables explicativas categoricas (llamadas tratamientos o factores) en el Analisis de varianza  y hemos ejecutado el mismo proceso para analisis que involucran variables explicativas continuas, como en el caso de la regresión lineal simple. 
 
 Si aumentamos la complejidad de estos fenomenos podriamos predecir la misma variable, combinando dos variables explicativas, una categórica y otra continua: ANCOVA.
 
@@ -756,7 +756,7 @@ iris %>% anova_test(Sepal.Length ~ Species*Sepal.Width)
 El orden de las variables es importante en ANCOVA, primero es necesario remover la covariable de la cual queremos controlar el efecto y luego indicamos nuestra vairable de interes. Para nuestro caso:
 
 ```{r}
-res.ancova <- iris %>% anova_test(Sepal.Length ~ Sepal.Width + Species)
+res.ancova <- iris %>% anova_test( Sepal.Length ~ Sepal.Width + Species)
 get_anova_table(res.ancova)
 ```
 
@@ -780,7 +780,7 @@ get_emmeans(pwc)
 ```
 #### El gráfico de ANCOVA
 
-Existen muchas formas de presentar estos resultados. Esta es solo una opcion.
+Existen muchas formas de presentar estos resultados. Esta es solo una opción.
 
 ```{r}
 pwc <- pwc %>% add_xy_position(x = "Species", fun = "mean_se")
