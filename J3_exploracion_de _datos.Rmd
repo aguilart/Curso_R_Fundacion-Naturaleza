@@ -6,25 +6,26 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
-**IMPORTANTE** 
+>**IMPORTANTE** 
 Recuerda que antes de adjuntar las librerias debes instalar los paquetes estadisticos. Para ello utiliza el código:
 
-install.packages("dplyr")
-install.packages("DHARMa")
-install.packages("ggplot2")
-install.packages("multcompView")
-install.packages("lmtest")
-install.packages("ggrepel")
-install.packages("tidyverse")
-install.packages("ggpurb")
-install.packages("rstatix")
-install.packages("broom")
-install.packages("emmeans")
+*install.packages("dplyr")
+*install.packages("DHARMa")
+*install.packages("ggplot2")
+*install.packages("multcompView")
+*install.packages("lmtest")
+*install.packages("ggrepel")
+*install.packages("tidyverse")
+*install.packages("ggpubr")
+*install.packages("rstatix")
+*install.packages("broom")
+*install.packages("emmeans")
+*install.packages("extrafont")
 
-es recomendable que corras el codigo anterior en la consola (ventana inferior izquierda).
+es recomendable que ejcutes el código anterior en la **consola** (ventana inferior izquierda).
 
 # LIBRERIAS
 ```{r}
@@ -40,41 +41,101 @@ library(ggpubr)#para ANCOVA
 library(rstatix)#para  ANCOVA
 library(broom)#para  ANCOVA
 library(emmeans)# Post hoc análisis
+library(extrafont)
 ```
-#CONTENIDO
-## ANALISIS EXPLORATORIO DE DATOS
-## ANDEVA o ANOVA
-## REGRESION LINEAL SIMPLE
-## ANCOVA
 
-##ANALISIS EXPLORATORIO DE DATOS
+#RECAPITULACION
+
+Importación de datos a R.
+
+Existen varios métodos. Es importante tener en cuenta ciertos lineamientos generales:
+
+*1. Cuál tipo de archivo quiero importar.
+*2. Cuál método es el más apropiado.
+*3. Cuál es mi finalidad con el análisis de los datos.
+
+Metodo 1. Importarlos usando la interfaz gráfica del usuario.
+
+Para ello sigue los siguientes pasos
+
+- Presiona click en "file" 
+- Selcciona "Import data set"
+- seleciona el tipo de archivo, en este ejemplo " From excel"
+- selecciona "browse" en la esquina superior derecha para encontrar el archivo
+- Verifica que las variables han sido identificadas correctamente
+- Presiona "import" en la esquina inferioir derecha
+- !listo
+
+- Este metodo puede ser abreviado utilizando el entorno "Environment"
+
+```{r}
+#metodo1<-datos
+```
+
+Método 2. Importarlo por medio de la funcion "seleccionar archivo"
+
+- Define y asigna el nombre a tu base de datos "método2"
+- selecciona la funcion read.csv
+- ejecuta la función "file.choose"
+- la flecha verde superior derecha en el "chunk"
+- Sigue la interfaz gráfica del usuario para encontrar tu archivo. Recuerda que en este caso debe ser un .csv
+- Listo.
+
+```{r}
+metodo2 <- read.csv(file.choose())
+```
+
+Método 3. Importarlo por medio de comando (Recomendado)
+
+- Define y asigna el nombre a tu base de datos
+- selecciona la funcion read.csv
+- Escribe la ruta del archivo de interes, recuerda incorporar las comillas "", "C:\Users\SGM\Desktop"
+- Recuerda cambiar la direccion de la pleca hacia la derecha "/", "C:/Users/SGM/Desktop"
+- Incluye junto con el nombre del archivo, la extension, en este caso .csv
+- Verifica los espacios, y si en los nombres de la ruta hay espacios mantenlos, de lo contrario eliminalos.
+- Presiona la flecha verde superior derecha en el "chunk"
+- Listo.
+
+```{r}
+metodo3<-read.csv("C:/Users/SGM/Desktop/datos.csv")
+metodo3
+```
+
+#CONTENIDO
+
+* ANALISIS EXPLORATORIO DE DATOS
+* ANDEVA O ANOVA
+* REGRESION LINEAL SIMPLE
+* ANCOVA
+
+## ANALISIS EXPLORATORIO DE DATOS
 
 ### EXPLORACIÓN DE DATOS
 
 En esta sesión aprenderemos como conducir análisis exploratorios en datos, particularmente para detectar patrones y posibles desviaciones de los supuestos necesarios para conducir pruebas estadísticas. Los datos pueden ser representados y resumidos de muchas formas en R. Como ya lo habrás notado en nuestra sesión previa, el uso de gráficos durante el análisis exploratorio es de gran utilidad para validar la distribution y posibles tendencias de nuestros datos. Además puede proveer indicios de como ajustar tus datos en caso de que no correspondan con los supuestos. Recuerda **NUNCA PASES POR ALTO LOS ANÁLISIS EXPLORATORIOS** esto puede salvarte mucho tiempo y evitar interpretaciones tendenciosas y no justificadas.
 
-#LOS DATOS
+#### LOS DATOS
 Para esta sesión vamos a utlizar la base de datos **"iris"** que se encuentra adjunta en r, por lo tanto no necesitas cargarla. Esta base de datos presenta 5 variables. 
 
 Definamos las variables:
-**Sepal.Length** La longitud de los sépalos en milímetros
-**Sepal.Width** El ancho de los los sépalos en milímetros
-**Petal.Length** La longitud de los pétalos en milímetros
-**Petal.Width** El ancho de los pétalos en milímetros
+**Sepal.Length** La longitud de los sépalos en centímetros
+**Sepal.Width** El ancho de los los sépalos en centímetros
+**Petal.Length** La longitud de los pétalos en centímetros
+**Petal.Width** El ancho de los pétalos en centímetros
 **Species** Las especies estudiadas
 
-![Iris_nc_mal_escrito_jajaja](C:/Users/SGM/Documents/SED STATS AND R/Stats workshop/iris.png){width="600" height="1000"} 
+![Fuente: ICHI.PRO](images\Jornada 3\iris_flores.png){width="600" height="200"} 
 
 ### EL PRIMER ACERCAMIENTO
 
-Una forma fácil y sencilla de obtener informacion resumida de nuestras variables es la función glance:
+Una forma fácil y sencilla de obtener informacion resumida de nuestras variables es la función "glance":
 ```{r}
-glance(iris)
+#glance(iris)
 #head(iris)
 #tail(iris)
 #glimpse(iris)
 #View(iris)# no recomendada para procesos de replicabilidad porque tiene conflictos con Knitting
-#summary(iris)
+summary(iris)
 ```
 Es importante notar que para los factores y variables lógicas, la función summary nos retorna el número de observaciones en cada nivel. Para variables numéricas (ambos enteros y con decimales), se retorna el mínimo, máximo, primer y tercer quartil la media y la mediana. Aunque es un forma fácil la desventaja es que no muestra los datos por grupo, en este caso especie. Además, en muchos casos entender nuestros datos basado estos números nos llevaría un poco de tiempo. 
 
@@ -86,7 +147,7 @@ En este caso nos muestra el tipo de variable y algunos detalles sobre ellas.
 
 Otra forma de explorar nuestros datos consiste en detectar si hay valores incompletos o no reportados en nuestra base de datos. Para ello se utiliza la función is.na() que puede ser aplicada a toda la matriz o a una variable en particular
 ```{r}
-is.na(iris)
+head(is.na(iris))
 is.na(iris$Sepal.Length)
 ```
 
@@ -122,13 +183,15 @@ En técnicas mas avanzadas (no cubiertas en este curso) hay métodos que pueden 
 
 #### Histograma
 
-El histograma de frecuencias es una alterniva excelente para observar la distribucion de variables continuas. Presenta una idea rapida de si los datos se ajustan a una distribucion normal y la presencia de valores extremos. Construyamos un histograma para nuestras variables numericas continuas.
+El histograma de frecuencias es una alterniva excelente para observar la distribucion de variables continuas. Presenta una idea rapida de si los datos se ajustan a una distribucion normal y la presencia de valores extremos. Construyamos un histograma para nuestras variables númericas continuas.
+
 ```{r}
-histograma<-ggplot(data=iris, aes(Petal.Length))+
+#png("figura 1", units="in", width=10, height=7, res=300)
+histograma1<-ggplot(data=iris, aes(Petal.Length))+
   geom_histogram()+ #Draw histogram with probabilities
   xlab("Longitud del Petalo(mm)")+
   ylab("Frecuencia")
-histograma
+histograma1
 ```
 
 ```{r}
@@ -140,21 +203,25 @@ facet_wrap(~Species)
 histograma2
 ```
 
-```{r}
-histograma<-ggplot(data=iris, aes(Sepal.Length))+
-  geom_histogram()+ #Draw histogram with probabilities
-  xlab("Longitud del sepalo")+
-  ylab("Frecuencia")+
-stat_function(fun = dnorm, args = list(mean = mean(iris$Sepal.Length), sd = sd(iris$Sepal.Length)))
-histograma
-```
-
 #### Gráfico de Cajas y Bigotes
 ```{r}
 Cajas_y_bigotes<-ggplot(data=iris, aes(y=Sepal.Length))+
   geom_boxplot()
+ 
+ 
 Cajas_y_bigotes
 ```
+
+```{r}
+ # # ejemplovio<-ggplot(data=iris, aes(x=Species, y=Sepal.Length, fill=Species))+
+ #   geom_violin()+
+ #    coord_flip()+
+ #   stat_summary(fun.y=median, geom="point", size=2, color="black")
+ # 
+ # ejemplovio
+```
+
+
 ¿Qué vemos en el gráfico?
   - Cuartiles (25, 50, 75 percentiles), 50% representa la media
   - Intervalo entre cuartiles es la differencia entre el percentil 75 y el percentil 25
@@ -164,7 +231,7 @@ Cajas_y_bigotes
   
   Aun no es claro...
   
-![Caja](C:/Users/SGM/Documents/SED STATS AND R/Stats workshop/Diagrama_de_caja.jpg){width="600" height="1000"} 
+![Caja: FUENTE WIKIPEDIA](images\Jornada 3\Diagrama_de_caja.jpg){width="300" height="400"} 
 Seria ahora interesante ver como se comportan estos datos entre las especies.
 ```{r}
 Cajas_y_bigotes2<-ggplot(data=iris, aes(y=Petal.Length, x=Species, fill=Species))+
@@ -191,7 +258,7 @@ En el caso del analisis de varianza normalemnte se presenta una variable numéri
 
 #### 1.2 Gráfico de cajas
 
-El gráfico de cajas puede ayudarnos aobservar la distribucion de las variables y su normalidad. Para este caso
+El gráfico de cajas puede ayudarnos aobservar la distribución de las variables y su normalidad. Para este caso
 ```{r}
 ggplot(iris, aes(y=Sepal.Length, x=Species, fill= Species))+
   geom_boxplot()+
@@ -580,7 +647,7 @@ ggplot(data = iris_no_setosa, aes(x = seq_along(residuos), y = residuos)) +
   theme(plot.title = element_text(hjust = 0.5), legend.position = "none")
 ```
 
-El metodo alternativo es ocupar la función que viene incorporada por defecto en R y generar un conjunto de gráficos con la misma informacion
+El método alternativo es ocupar la función que viene incorporada por defecto en R y generar un conjunto de gráficos con la misma informacion
 
 ```{r}
 par(mfrow = c(2,2))
@@ -593,11 +660,11 @@ El modelo se adhiere a los supuestos de linearidad (1), carencia de valores atip
 
 #### PARA ANALIZAR.....
 
-Cuando los modelos no cumplen los supuestos, se pueden realizar algunos pasos para mejorar este proceso. Entre ellos: transformar las variables, incluir mas variables explicativas o ajustar la variable respuesta a otro tipo de distribucion. Estos aspectos no seran explorados en este curso, pero hay bastante informacion sobre ello disponible en linea. Tambien, en cursos mas avanzados de la Fundacion Naturaleza El Salvador.
+Cuando los modelos no cumplen los supuestos, se pueden realizar algunos pasos para mejorar este proceso. Entre ellos: transformar las variables, incluir mas variables explicativas o ajustar la variable respuesta a otro tipo de distribución. Estos aspectos no seran explorados en este curso, pero hay bastante informacion sobre ello disponible en linea. Tambien, en cursos mas avanzados de la Fundacion Naturaleza El Salvador.
 
 ### ANALISIS DE COVARIANZA (ANCOVA)
 
-Hasta ahora hemos visto como analizar variables respuesta, en relacion a variables explicativas categoricas (llamadas tratamientos o factores) en el Analisis de varianza  y hemos ejecutado el mismo proceso para analisis que involucran variables explicativas continuas, como en el caso de la regresión lineal simple. 
+Hasta ahora hemos visto como analizar variables respuesta, en relación a variables explicativas categoricas (llamadas tratamientos o factores) en el Analisis de varianza  y hemos ejecutado el mismo proceso para analisis que involucran variables explicativas continuas, como en el caso de la regresión lineal simple. 
 
 Si aumentamos la complejidad de estos fenomenos podriamos predecir la misma variable, combinando dos variables explicativas, una categórica y otra continua: ANCOVA.
 
@@ -631,7 +698,6 @@ El unico supuesto que es adicional es:
   ##Pongamos a prueba los supuestos graficamente
   
 ##### 1. Linealidad: La relación entre ambas variables debe ser lineal.
-  
 ```{r}
 ggscatter(
   iris, x = "Sepal.Width", y ="Sepal.Length" ,
@@ -690,7 +756,7 @@ iris %>% anova_test(Sepal.Length ~ Species*Sepal.Width)
 El orden de las variables es importante en ANCOVA, primero es necesario remover la covariable de la cual queremos controlar el efecto y luego indicamos nuestra vairable de interes. Para nuestro caso:
 
 ```{r}
-res.ancova <- iris %>% anova_test(Sepal.Length ~ Sepal.Width + Species)
+res.ancova <- iris %>% anova_test( Sepal.Length ~ Sepal.Width + Species)
 get_anova_table(res.ancova)
 ```
 
@@ -699,7 +765,7 @@ get_anova_table(res.ancova)
 Para indentificar los grupos que son diferentes podemos recurrir a la comparacion multiple utilizando el factor de corrección de Bonferrani.
 
 ```{r}
-# Comparacion por pares
+# Comparación por pares
 pwc <- iris %>% 
   emmeans_test(
     Sepal.Length ~ Species, covariate = Sepal.Width,
@@ -714,7 +780,7 @@ get_emmeans(pwc)
 ```
 #### El gráfico de ANCOVA
 
-Existen muchas formas de presentar estos resultados. Esta es solo una opcion.
+Existen muchas formas de presentar estos resultados. Esta es solo una opción.
 
 ```{r}
 pwc <- pwc %>% add_xy_position(x = "Species", fun = "mean_se")
@@ -729,7 +795,7 @@ ggline(get_emmeans(pwc), x = "Species", y = "emmean") +
 
 ### CONCLUSIÓN
 
-El modelo se adhiere a los supuestos de linearidad (1), carencia de valores atipicos (4) independencia (5) y homogenindad de pendientes (6), pero no cumple los supuestos de normalidad en los residuos (2) y homocedasticidad (3). Por lo tanto se debe ser cuidadoso al interpretar el modelo si es que se acepta. Escencialmente podemos mencionar que existen diferencias en el tamaño de los sépalos entre las especies, cuando se controla el efecto del ancho del sépalo.
+El modelo se adhiere a los supuestos de linearidad (1), carencia de valores atipicos (4) independencia (5) y homogenindad de pendientes (6), pero no cumple lo#s supuestos de normalidad en los residuos (2) y homocedasticidad (3). Por lo tanto se debe ser cuidadoso al interpretar el modelo si es que se acepta. Escencialmente podemos mencionar que existen diferencias en el tamaño de los sépalos entre las especies, cuando se controla el efecto del ancho del sépalo.
 
 REFERENCIAS
 
