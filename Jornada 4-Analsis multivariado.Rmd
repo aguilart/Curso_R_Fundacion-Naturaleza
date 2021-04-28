@@ -1,0 +1,420 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+<style type="text/css">
+  body{
+  font-size: 12pt;
+}
+
+h.title {
+  font-size: 25pt;
+  }
+
+</style>
+
+
+# Introducción práctica al análisis multivariado
+
+## 1. Ordenando nuestra sesión de trabajo
+
+### a) Les recomiendo crear un "R project". Para ello dirijanse a este icono:
+
+![](R project icon.png)
+
+
+### b) Creen un nuevo directorio:
+
+![](New Directory.png)
+
+
+### c) Seleccionar nuevo proyecto
+
+![](Create_new_project.png)
+### d) Asignar nombre al proyecto y seleccionar el folder donde guardarlo. En mi caso el nombre del projecto es "Jornada4" y el Foler es "FundaciónNaturaleza". Simplemente busquelo en "browse".
+
+![](nombrar_guardar.png)
+
+
+
+
+## Principal Component Analysis
+
+
+### Idea básica
+
+El "Análisis de componentes principales" (PCA en sus siglas en inglés) es un "malabarismo" matemático para visualizar muchas variables en menos ejes (usualmente dos).
+
+El "malabarismo" se basa en medir: 
+
+a) la variación de cada variable (varianza)
+
+b) la variación entre variables (covarianza)
+
+Es decir, mide cuanto varian nuestras muestras entre si por cada variable y si, por ejemplo, cuando una muestras incrementan en una variable también incrementan en la otra variable.
+
+Entoces PCA es una herramienta visual útil para  "resumir" decenas a cientos de variables medidas en pocos ejes. El eje "x" se le llama componenente principal 1 y el eje "y" es el componente principal 2. **Nota: Los ejes estan ordenados por cuanta variación midel: El componente principal 1 explica mayor variación que el dos.**
+
+### Cuando usarlo
+
+PCA se recomienda cuando:
+
+* Se tiene muchas variables (al menos más de tres)
+* Todas las variables corresponde a mediciones continuas. Por ejemplo: largos, anchos, pesos, concentraciones de nutrientes, etc. Es decir todo aquello que en teoría se puede medir continuamente incluyendo punto decimales.
+* En general cuando la distribución se espera que sea normal. Si la variable es continua pero no normal, transforma las variables: logaritmos, raiz cuadradas, etc.
+
+PCA no se recomienda cuando:
+
+* Las variables no son continuas (el punto decimal no existe o no tiene sentido), conteo de individuos o casos cuand el "0" tiene un significado particular (para eso usaremos NMDS como veremos más adelante)
+
+
+
+### Ejemplo práctico: haciendo un PCA con mediciones abióticas del suelo
+
+
+#### Importando los datos y haciendo un scan
+```{r,echo=FALSE,eval=F}
+write.csv(varechem,"varechem_c.csv")
+write.csv(varespec,"varespec_c.csv")
+```
+
+```{r}
+varechem<-read.csv("varechem_c.csv")
+```
+
+scan de la tabla
+```{r}
+head(varechem)
+```
+
+La variable "x" es en realidad el código del sitio. Para evitar confusión usemos el codigo del sitio como nombre de fila (agreagandole la palabra "sitio") y borremoslo como columna.
+```{r}
+rownames(varechem)<-paste("sitio",varechem$X,sep ="_")
+varechem$X<-NULL
+```
+
+Revisando que lo que ejecutamos se cumplió
+```{r}
+head(varechem)
+```
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+#### Haciendo el PCA con vegan
+```{r, eval=FALSE}
+library(vegan)
+
+rda(varechem,scale=TRUE)
+
+```
+
+Y eso es todo! Ya tenemos un PCA hecho!
+
+Es decir, la función `rda` de `vegan` calcula un PCA común y corriente si solo se proporciona una tabla (como en nuesto caso).
+
+**Nota: cuando las variables se midieron en diferentes unidades (como aqui) es necesario escribir el argumento** `scale=TRUE` **para escalar las variables a unidades de varianza**
+
+Esto es necesario porque el solo hecho de cambiar las unidades de medidas (por ejemplo de milimetros a centimetros) altera la varianza. 
+
+Por ejemplo, la varianza de datos en milimetros:
+```{r}
+var(c(10,100,200,50))
+```
+
+
+es mayor que la de los mismos datos pero en centimetros
+```{r}
+var(c(1,10,20,5))
+```
+
+
+Como un PCA esta basado en "medir" la varianza y covarianza, cambios arbitrarios como cambiar unidades pueden retornar resultados diferentes. Por eso es mejor escalar las variables a unidades de varianza.
+
+
+### Visualizando los resultados
+
+Como casi todo en R se recomienda "guardar temporalmente" los resultados de una operación en un "objeto" con un nombre en nuestro "ambiente". Para nuestro PCA lo guardare con el nombre modelo_PCA:
+```{r}
+modelo_PCA<-rda(varechem,scale=TRUE)
+```
+
+Nuestro objetivo con este PCA es poder ver las 14 variables que contiene la tabla `varechem` en solo dos ejes. Por tanto la mejor forma de ver los resultados en haciendo un plot con solo dos ejes. 
+
+El paquete `vegan` viene con opciones deault para hacer un plot. (Nota: no son muy llamativas, más adelante lo modificaremos con `ggplot`).
+
+
+```{r}
+plot(modelo_PCA)
+```
+
+Aunque feo, este plot visualiza dos tipos de información: 
+
+1. En rojo, tenemos las 14 variables.
+2. En negro tenemos las muestras de los 24 sitios.
+
+Como son dos tipos de información, a este plot se le llama como "bi plot".
+
+La mayor parte del tiempo, queremos leer intuitivamente en un biplot que: 
+
+* Los sitios que estan más cerca de sí, "se parecen más".
+* Los sitios que estan en la misma "dirección" que las variables, tienen mayor valor en esas variables. 
+
+En otras palabras, de los sitios nos interesa su "posición" y de las variables su "dirección". 
+
+Para leerlo de esa forma debemos aseguararnos de unos cuantos argumentos y hacer unas cuantas modificaciones: 
+
+* Las variables inicarlas como flechas que indican direccion.
+* El tamanho de las flechas indican que variables son más importantes.
+* Mientras más cercana una flecha (variable) es a un axis, mayor su contribución a un eje principal.
+* Los sitios se indican como puntos cuya posción refleje la "similitud" entre sitios.
+
+```{r}
+biplot(modelo_PCA,scaling="sites",display = "species",col="red")
+points(modelo_PCA,scaling="sites",display = "sites",pch=19,col="blue")
+
+```
+
+En el código anterior lo importante es fijarse el argumento `scaling="sites"`. Al epecificar con "sites" (sitios), estamos especificando que **queremos ver la posición de los sitios como una indicación de lo similar que son entre ellos.**
+
+En este plot, casi todo la información (tamanhos de flechas, posiciones de puntos) tiene un signficado. Todo menos el ángulo entre flechas!
+
+
+
+Si cambiamos el `scaling` la lectura del biplot es un tanto diferente:
+```{r}
+biplot(modelo_PCA,scaling="species",display = "species",col="red")
+points(modelo_PCA,scaling="species",display = "sites",pch=19,col="blue")
+```
+
+Al epecificar con "species" (especies), estamos especificando que **queremos ver el angulo entre las flechas como una indicación de las correlaciones entre variables. Sin embargo, la posición de los puntos no indica necesariamente la similitud entre sitios.**
+
+Es decir en este formato lo que queremos ver es la relación entre variables, mientras más juntas, más covarian.
+
+Por último, es usual que pongamos en el plot "el porcentaje de variación" que explican los dos ejes principales. Para obtener ese valor:
+
+```{r}
+summary(modelo_PCA)[["cont"]][["importance"]][,c(1:2)]
+```
+
+
+Esta información la anhadimos a nuestro plot
+```{r}
+biplot(modelo_PCA,scaling="sites",display = "species",col="red",xlab="PCA1 37.08%",ylab="PCA2 22.80%")
+points(modelo_PCA,scaling="sites",display = "sites",pch=19,col="blue")
+```
+
+## Non-metric multidimensional scaling (NMDS)
+
+El "NMDS" es una otra opción para ver muchas variables en pocos ejes. **Es decir, el NMDS es simplemente otro malabarismo matemático pare resumir la información contenida en muchas variables**
+
+Este malabarismo se basa en: 
+
+* Medir las "distancias" o disimilitud entre muestras/sitios usando todas las variables a travez de un índice
+* A prueba y error, representar las muestras/sitios en solo pocos ejes que respeten (o se asemejen mucho) a las distancias de este indice.
+
+Es decir si la muestra "a" esta más cerca de "b" que de "c", el NMDS tratará de tener ponerlos en un plot como este:
+
+```{r,echo=FALSE}
+x<-c(1,4,9)
+y<-c(2,3,12)
+n<-c("a","b","c")
+plot(x,y,ylim = c(0,13),ylab = "NMDS2",xlab = "NMDS1");text(x,y,label=n,cex = 5)
+```
+
+Cuando digo que es a prueba y error, realmente es a pruba y error! El NMDS lo que hace es:
+
+1. Calcula las "distancias" entro los sitios
+2. Coloca los sitios en pocos ejes (dos o tres) casi "a lo loco"
+3. Mide las distancias entre sitios en esos nuevos ejes
+4. Compara las distancias reales con la nueva, si no se parecen, intenta de nuevo. Si la comparación no es buena, se dice que tiene mayor "stress".
+5. Repite el pasos 2 a 4 "moviendo un poco" las posiciones de las muestras hasta que la comparación entre las distancias reales y las que asigna el NMDS son "aceptables", es decir hasta que el "stress" sea bajo.
+
+Como ven, el NMDS solo es posible gracias a tener una computadora!
+
+### Cuando usarlo
+
+En cualquier caso, pero es especialmente útil con conteo de individuos (típico en ecología).
+
+La ventaja del NMDS es que permite usar cualquier índice de distancia. En el caso de conteo de individuos por especie, una de las distancias más cómunes es "Bray-Curtis".
+
+La ventaja más evidente de usar distancias "Bray-Curtis" es que la ausencia de individuos de una especie entre dos sitios significa que las muestras son diferentes. Otras distancias (como las basadas con covarianza como en PCA) interpretarían el 0 (ausencia de individuos) como similitud entre muestras.
+
+
+### Ejemplo práctico: haciendo un NMDS con mediciones de la abundancia de especies de liquenes entre sitios-
+
+
+Siempre usando `vegan`, obtendremos el NMDS de los conteos por especie en la tabla varespec
+
+Importando los datos
+```{r}
+varespec<-read.csv("varespec_c.csv")
+```
+
+scan de la tabla
+```{r}
+head(varespec)
+```
+
+Como en el caso anterior, la columna "X" es el código del sitio. Asi que lo convertimos mejor en nombre de fila
+```{r}
+rownames(varespec)<-paste("sitio",varespec$X,sep ="_")
+varespec$X<-NULL
+head(varespec)
+```
+
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+Haciendo el NMDS
+```{r}
+modelo_nmds<-metaMDS(varespec,distance = "bray",k=3,trymax = 500)
+```
+
+
+Como mencionamos anteriormente, el NMDS se basa en comparar las distancias entre posciones en pocos ejes con las distancias reales. Si la comparación es buena (se asemejan) se dice que el "stress es bajo". Como regla no oficial un stress entre 0.1 y 0.2 se considera aceptable. 
+
+```{r}
+modelo_nmds$stress
+```
+
+
+Ahora entendiendo lo que escribimos:
+
+`metaMDS(varespec,distance = "bray",k=3,trymax = 500)`
+
+
+
+* `distance="bray"` especificamos que queremos usar distancias "Bray-Curtis"
+* `k=3` especificamos en cuantos ejes o dimensiones queremos ver nuestras sitions. Aquí escogimos 3 dimensiones.
+* `trymax=500` especificamos que queremos recalcular todos los pasos 2 al 4 un máximo de 500 veces.
+
+
+### Visualizando los resultados
+
+```{r}
+plot(modelo_nmds,display = "sites")
+points(modelo_nmds,display = "sites",pch=19,col="blue")
+
+```
+
+A diferencia del plot de un PCA, normalmente los plots del NMDS se usan solo para ver que sitios estan más cercanos a otros. 
+
+En este caso sería mejor ver el nombre de los sitios:
+```{r}
+plot(modelo_nmds,display = "sites",type="n")
+#points(modelo_nmds,display = "sites",pch=19,col="blue")
+text(modelo_nmds,display = "sites",cex=1)
+```
+
+Por ejemplo el sitio 13 y 19 son muy similares en abundancia identidad de especies, mientras que el sitio 21 o 25 son más disimilares.
+
+
+Un detalle de la función `metaMDS` es que ordena los ejes del NMDS como si fueran PCA, es decir el NMDS1 explica mayor variación que el NMDS 2. Sin embargo no es posible saber cuanta variación exactamente ya que el método matemático del NMDS es diferente al PCA.
+
+### Mejorando los plots con ggplot
+
+Los plots de `vegan` no son tan llamativos. Como es usual, `ggplot` permite mejorarlos. Para ello es necesario extraer la información del los modelos (PCA or NMDS) y directamente usar el plot. 
+
+
+#### PCA con ggplot
+
+Lammando al paquete `tidyverse` (que incluye el paquete `ggplot2`)
+```{r}
+library(tidyverse)
+```
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+Paso 1. Extraer la información del modelo
+```{r}
+
+#Extrayendo la posición de los sitios
+sitios_PCA<-as.data.frame(scores(modelo_PCA,display = "sites",scaling = "sites",choices=c(1,2)))
+
+sitios_PCA$sitio<-rownames(sitios_PCA)
+
+#Extrayendo la "dirección" de las variables
+dir_var_PCA<-as.data.frame(
+  scores(modelo_PCA,display = "species",choices = c(1,2),scaling = "sites"));
+dir_var_PCA$variables<-rownames(dir_var_PCA)
+
+names(dir_var_PCA)[1]<-"PCA1_var"
+names(dir_var_PCA)[2]<-"PCA2_var"
+```
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+Paso 2. Haciendo el plot
+```{r}
+sitios_PCA%>% 
+  ggplot()+
+  aes(x=PC1,y=PC2) +
+  #geom_point(size=2)+
+    geom_text(aes(label=sitio,fontface="bold.italic"),size=5) +
+    labs(y="PCA2 (22.97)",x="PCA1 (38.87%)",title="PCA",subtitle = "escalado a sitio")+
+  
+  geom_segment(aes(x=0, y=0, xend=PCA1_var, yend=PCA2_var), 
+        arrow = arrow(),color="gray",data = dir_var_PCA)+
+  geom_text(size=5,aes(x=PCA1_var,y=PCA2_var,label=variables,fontface="bold"),
+            color="darkred",
+            #hjust = 1.1, vjust =-0.5,#segment.size = 0,segment.color = 'transparent',
+            data = dir_var_PCA)
+  
+  
+  
+```
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+#### NMDS con ggplot
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+Paso 1. Extraer la información del modelo
+```{r}
+
+#Extrayendo la posición de los sitios
+sitios_nmds<-as.data.frame(scores(modelo_nmds,display = "sites",scaling = "sites",choices=c(1,2)))
+
+sitios_nmds$sitio<-rownames(sitios_nmds)
+```
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+Paso 2. Haciendo el plot
+```{r}
+sitios_nmds%>% 
+  ggplot()+
+  aes(x=NMDS1,y=NMDS2) +
+  geom_text(aes(label=sitio,fontface="bold.italic"),size=5) +
+  labs(y="NMDS2",x="NMDS1",title="NMDS Beta diversidad de plants",subtitle = "escalado a sitio")+
+  theme(plot.title = element_text(size = 15))
+  
+  
+```
+
+Exportando el plot
+```{r}
+png("NMDS.png",res = 600, width = 5000,height = 5000)
+
+sitios_nmds%>% 
+  ggplot()+
+  aes(x=NMDS1,y=NMDS2) +
+  geom_text(aes(label=sitio,fontface="bold.italic"),size=5) +
+  labs(y="NMDS2",x="NMDS1",title="NMDS Beta diversidad de plants",subtitle = "escalado a sitio")+
+  theme(plot.title = element_text(size = 15))
+dev.off()
+
+```
+
