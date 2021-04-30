@@ -1,6 +1,8 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output:
+  html_notebook: default
+  word_document: default
 ---
 
 <style type="text/css">
@@ -138,6 +140,8 @@ Como un PCA esta basado en "medir" la varianza y covarianza, cambios arbitrarios
 
 Como casi todo en R se recomienda "guardar temporalmente" los resultados de una operación en un "objeto" con un nombre en nuestro "ambiente". Para nuestro PCA lo guardare con el nombre modelo_PCA:
 ```{r}
+
+library(vegan)
 modelo_PCA<-rda(varechem,scale=TRUE)
 ```
 
